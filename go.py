@@ -127,7 +127,7 @@ class Game:
             if self.is_chain(id, coord, step) == True:
                 return True
 
-    def play_one_round(self):
+    def play_one_round(self)->Player:
         while (1):
             for p in (self.p1, self.p2):
                 print(f"It is {p.stone}'s turn'")
@@ -136,8 +136,7 @@ class Game:
                 self.board.print_board()
                 if self.is_win(p.id, (row, col)) == True:
                     print(f"OMG, {p.stone} wins!")
-                    break
-
+                    return p
                 
 if __name__ == "__main__":
     game = Game(Board(15, 15), Player(1, "Black"), Player(2, "White"))
