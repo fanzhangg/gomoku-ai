@@ -1,6 +1,3 @@
-from gomoku import Player
-
-
 class Chain:
     def __init__(self):
         self.size = 0
@@ -26,8 +23,8 @@ class DummyAI:
 
     - attack
     """
-    def __init__(self, id, opponent, stone):
-        self.opponent = opponent
+    def __init__(self, id, stone):
+        self.opponent = 3 - id
         self.id = id
         self.stone = stone
 
