@@ -1,20 +1,12 @@
 import copy
 import random
 
-SIZE = 15
-# sign_dict = {1: "1", 2: "2", 3: "3", 4: "4", }
-
 class Board:
     def __init__(self, rows: int, cols: int) -> None:
         self.rows = rows
         self.cols = cols
         self.last_move = (-1, -1)
         self.board = [[0 for i in range(cols)] for j in range(rows)]    # row major board
-        # for i in range(max(rows, cols)):
-        #     if i >= 0 and i < 10:
-        #         sign_dict[i] = str(i)
-        #     elif i >= 10:
-        #         sign
     
     def print_board(self) -> None:
         print("  ", end = "")
