@@ -84,7 +84,7 @@ class Player:
 
 
 class Game:
-    def __init__(self, board: Board, p1: Player_LV, p2: Player):
+    def __init__(self, board: Board, p1: Player_LV, p2: DummyAI):
         self.board = board
         self.p1 = p1
         self.p2 = p2
@@ -132,7 +132,7 @@ class Game:
 
     """
     check whether the player wins the game when put a stone at the coord
-    id: 1 for black stone, 2 for white stone
+    opponent: 1 for black stone, 2 for white stone
     coord: (row, col)
     return: true if wins, else false
     """
@@ -157,6 +157,6 @@ class Game:
                 
 if __name__ == "__main__":
     Player_lv = Player_LV(1, "Black")
-    Player_zf = DummyAI(2, "White")
+    Player_zf = DummyAI(2, 1, "White")
     game = Game(Board(15, 15), Player_lv, Player_zf)
     game.play_one_round()

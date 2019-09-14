@@ -10,7 +10,7 @@ class Chain:
         self.step = None
 
 
-class DummyAI(Player):
+class DummyAI:
     """
     Strategy: get a pattern such as 2 rows with a 3-stone chains share a same stone
     * 0 0
@@ -26,8 +26,10 @@ class DummyAI(Player):
 
     - attack
     """
-    def __init__(self, id, stone):
-        super().__init__(id, stone)
+    def __init__(self, id, opponent, stone):
+        self.opponent = opponent
+        self.id = id
+        self.stone = stone
 
     def move(self, board)->tuple:
         defending_point = self.get_defending_point(board, board.last_move)
@@ -111,19 +113,19 @@ class DummyAI(Player):
             :param x: row index
             :param y: col index
             :param curr_step: a tuple of current step
-            :return: true if the point (x, y) is 0, no gap has been found, the next point has the value of id
+            :return: true if the point (x, y) is 0, no gap has been found, the next point has the value of opponent
             """
             try:
                 n = board.get(x+curr_step[0], y+curr_step[1])
             except IndexError:
                 return False
-            return board.get(x, y) == 0 and not has_gap and n == self.id
+            return board.get(x, y) == 0 and not has_gap and n == self.opponent
 
         # Search positive direction
         row, col = coord
-        while 1:    # Increment when searching a point with the same id
+        while 1:    # Increment when searching a point with the same opponent
             try:
-                if board.get(row, col) == self.id:
+                if board.get(row, col) == self.opponent:
                     total += 1
                 elif is_gap(row, col, step):    # Keep searching if the point is a gap
                     has_gap = True
@@ -144,7 +146,7 @@ class DummyAI(Player):
         col -= step[1]
         while 1:
             try:
-                if board.get(row, col) == self.id:
+                if board.get(row, col) == self.opponent:
                     total += 1
                 elif is_gap(row, col, (-step[0], -step[1])):
                     has_gap = True
