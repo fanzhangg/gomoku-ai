@@ -4,6 +4,7 @@ class Board:
         self.cols = cols
         self.last_move = (-1, -1)
         self.board = [[0 for i in range(cols)] for j in range(rows)]    # row major board
+        self.sign_dic = {0: "_", 1: "1", 2: "2"}
     
     def print_board(self) -> None:
         print("  ", end = "")
@@ -19,8 +20,9 @@ class Board:
             else:
                 print(str(i), end = "")
             for j in range(self.cols):
-                print(str(self.board[i][j]), end = " ")
+                print(self.sign_dic[self.board[i][j]], end = " ")
             print("")
+        print("")
 
     def clear(self) -> None:
         for i in range(self.rows):
@@ -143,10 +145,11 @@ class Game:
     def play_one_round(self):
         while (1):
             for p in (self.p1, self.p2):
-                print(f"It is {p.stone}'s turn'")
+                print(f"It is {p.stone}'s turn'" + "\n")
                 row, col = p.move(self.board)
                 self.board.put(p.id, row, col)
+                print(p.stone + " makes " + str((row, col)) + "\n")
                 self.board.print_board()
                 if self.is_win(p.id, (row, col)) == True:
-                    print(f"OMG, {p.stone} wins!")
+                    print(f"OMG, {p.stone} wins!\n")
                     return
