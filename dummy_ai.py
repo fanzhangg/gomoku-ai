@@ -1,4 +1,4 @@
-from go import Player
+from ai_competition import Player
 
 
 class Chain:
@@ -42,9 +42,6 @@ class DummyAI(Player):
             for j in board.cols:
                 if board[i][j] == 0:
                     return i, j
-
-    def is_point_empty(self, board, coord):
-
 
     def get_defending_point(self, board, coord: tuple)->tuple or None:
         """
