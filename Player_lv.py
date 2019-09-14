@@ -1,5 +1,5 @@
 import copy
-from ai_competition import *
+from gomoku import Board
 
 class Player_LV:
     def __init__(self, id: int, stone: str) -> None:

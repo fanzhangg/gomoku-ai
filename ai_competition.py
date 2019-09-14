@@ -26,8 +26,8 @@ class Board:
             print("")
 
     def clear(self) -> None:
-        for i in self.rows:
-            for j in self.cols:
+        for i in range(self.rows):
+            for j in range(self.cols):
                 self.board[i][j] = 0
 
     def get(self, row: int, col: int):

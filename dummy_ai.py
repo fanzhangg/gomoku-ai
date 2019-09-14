@@ -1,4 +1,4 @@
-from ai_competition import Player
+from gomoku import Player
 
 
 class Chain:
@@ -38,9 +38,9 @@ class DummyAI(Player):
             return self.get_empty_point(board)
 
     def get_empty_point(self, board)->tuple:
-        for i in board.rows:
-            for j in board.cols:
-                if board[i][j] == 0:
+        for i in range(board.rows):
+            for j in range(board.cols):
+                if board.get(i, j) == 0:
                     return i, j
 
     def get_defending_point(self, board, coord: tuple)->tuple or None:
