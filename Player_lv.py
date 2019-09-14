@@ -1,5 +1,5 @@
 import copy
-from gomoku import Board
+from classes import Board
 
 class Player_LV:
     def __init__(self, id: int, stone: str) -> None:
