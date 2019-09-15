@@ -1,7 +1,8 @@
 import copy
 from classes import Board
+    
 
-class Player_LV:
+class PlayerLV:
     def __init__(self, id: int, stone: str) -> None:
         self.id = id
         self.opp = 3 - id
@@ -399,39 +400,40 @@ class Player_LV:
 
     def get_result(self, board: list, steps: int) -> tuple:
         moves = self.get_moves(board)
-
-        # print("moves: " + str(moves))
-
         if len(moves) == 1:
             return (moves[0], 1000)
 
+        # print("moves: " + str(moves))
+
         scores = {}
-        for (i, j) in moves:
+        for move in moves:
+            i = move[0]
+            j = move[1]
 
             new_board = copy.deepcopy(board)
             new_board[i][j] = self.id
 
             row_lis = self.extend_in_four_directions(new_board, i, j)
 
-            scores[(i, j)] = 0
+            scores[move] = 0
             for cur_row in row_lis:
-                scores[(i, j)] += self.get_score(cur_row[0], cur_row[1], new_board, (i, j), steps)
-                if scores[(i, j)] >= 1000:
+                scores[move] += self.get_score(cur_row[0], cur_row[1], new_board, move, steps)
+                if scores[move] >= 1000:
 
                     # print("Steps: " + str(steps)) 
                     # print("Scores: " + str(scores))
 
-                    return ((i, j), scores[(i, j)])
+                    return (move, scores[move])
 
         # print("Steps: " + str(steps)) 
         # print("Scores: " + str(scores))
 
         best_move = (7, 8)
         best_score = -1000
-        for move in scores:
-            if scores[move] > best_score:
-                best_move = move
-                best_score = scores[move]
+        for mov in scores:
+            if scores[mov] > best_score:
+                best_move = mov
+                best_score = scores[mov]
         
         return (best_move, best_score)
 
