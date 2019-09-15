@@ -1,4 +1,5 @@
-from ai_competition import Board
+from classes import Board
+
 
 class Chain:
     def __init__(self):
