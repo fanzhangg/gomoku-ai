@@ -23,8 +23,8 @@ class DummyAI:
 
     - attack
     """
-    def __init__(self, id, stone):
-        self.opponent = 3 - id
+    def __init__(self, id, opponent, stone):
+        self.opponent = opponent
         self.id = id
         self.stone = stone
 
@@ -50,6 +50,7 @@ class DummyAI:
         a tuple of the step such as the chain with the largest stone exists,
         the coord of the gap
         """
+        # TODO: handle the case when the stone is on the bound
         steps = [(1, 0), (0, 1), (1, 1), (1, -1)]    # row, col, diagonals
         for step in steps:
             max_chain = self.get_max_chain_at_step(board, coord, step)
@@ -83,7 +84,7 @@ class DummyAI:
                 eyes.append((row, col))
         except IndexError:
             pass
-        row, col = chain.end[0] - chain.end[0], chain.end[1] - chain.end[1]
+        row, col = chain.end[0] - chain.step[0], chain.end[1] - chain.step[1]
         try:
             if board.get(row, col) == 0:
                 eyes.append((row, col))
