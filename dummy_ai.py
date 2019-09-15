@@ -1,3 +1,5 @@
+from ai_competition import Board
+
 class Chain:
     def __init__(self):
         self.size = 0
@@ -27,6 +29,18 @@ class DummyAI:
         self.opponent = opponent
         self.id = id
         self.stone = stone
+        self.patterns = stone
+
+    def get_available_center_point(self, board: Board):
+        x = board.rows // 2
+        y = board.cols // 2
+        if board.get(x, y) == 0:
+            return x, y
+        else:
+            return x+1, y+1
+
+    def attack(self, board:Board)->tuple:
+        pass
 
     def move(self, board)->tuple:
         defending_point = self.get_defending_point(board, board.last_move)
@@ -42,6 +56,11 @@ class DummyAI:
                 if board.get(i, j) == 0:
                     return i, j
 
+    def get_free_point_around(self, board: Board, x: int, y: int):
+        while True:
+            if board.get(x, y) == 0:
+                return x, y
+
     def get_defending_point(self, board, coord: tuple)->tuple or None:
         """
         :param board: stone board
@@ -52,6 +71,7 @@ class DummyAI:
         """
         # TODO: handle the case when the stone is on the bound
         steps = [(1, 0), (0, 1), (1, 1), (1, -1)]    # row, col, diagonals
+        # Detect four
         for step in steps:
             max_chain = self.get_max_chain_at_step(board, coord, step)
             if max_chain.size == 4:
@@ -61,12 +81,42 @@ class DummyAI:
                 if len(eyes) > 0:   # live/dead four
                     # choose the one relatively close to the center
                     return eyes[0]
-            elif max_chain.size == 3:
+
+        # Detect live three
+        for step in steps:
+            max_chain = self.get_max_chain_at_step(board, coord, step)
+            if max_chain.size == 3:
                 if max_chain.gap:   # has a gap
                     return max_chain.gap    # put on the gap
                 eyes = self.get_unblocked_eyes(board, max_chain)
                 if len(eyes) == 2:  # live three
                     return eyes[0]
+
+        # Detect dead three
+        for step in steps:
+            max_chain = self.get_max_chain_at_step(board, coord, step)
+            if max_chain.size == 3:
+                return max_chain.gap
+            eyes = self.get_unblocked_eyes(board, max_chain)
+            if len(eyes) == 1:
+                return eyes[0]
+
+        # Detect two
+        for step in steps:
+            max_chain = self.get_max_chain_at_step(board, coord, step)
+            if max_chain.size == 2:
+                return max_chain.gap
+            eyes = self.get_unblocked_eyes(board, max_chain)
+            if len(eyes) > 0:
+                return eyes[0]
+
+        # Detect one
+        for step in steps:
+            max_chain = self.get_max_chain_at_step(board, coord, step)
+            eyes = self.get_unblocked_eyes(board, max_chain)
+            if len(eyes) > 0:
+                return eyes[0]
+
         return None
 
     def get_unblocked_eyes(self, board, chain: Chain)->list:
