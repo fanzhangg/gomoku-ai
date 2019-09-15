@@ -2,7 +2,7 @@ class Board:
     def __init__(self, rows: int, cols: int) -> None:
         self.rows = rows
         self.cols = cols
-        self.last_move = (-1, -1)
+        self.last_move = (7, 7)
         self.board = [[0 for i in range(cols)] for j in range(rows)]    # row major board
         self.sign_dic = {0: "_", 1: "1", 2: "2"}
     
@@ -144,13 +144,25 @@ class Game:
 
     def play_one_round(self):
         self.board.print_board()
+        print(" * * * * * * Gomoku Game Start * * * * * * \n")
         while (1):
             for p in (self.p1, self.p2):
                 print(f"It is {p.stone}'s turn'" + "\n")
                 row, col = p.move(self.board)
+
+                if not isinstance(row, int) or not isinstance(col, int) or row < 0 or col < 0 or row > self.board.rows - 1 or col > self.board.cols - 1:
+                    print( p.stone + " gave an invalid move!")
+                    return
+
                 self.board.put(p.id, row, col)
-                print(p.stone + " makes " + str((row, col)) + "\n")
+                print("Player " + p.stone + " makes " + str((row, col)) + "\n")
                 self.board.print_board()
                 if self.is_win(p.id, (row, col)) == True:
-                    print(f"OMG, {p.stone} wins!\n")
-                    return
+                    print(f" * * * * * * Player '{p.stone}' Wins! * * * * * * \n")
+                    print("Wanna start a new game? ('y' to restart)")
+                    if_new = input(">")
+                    if if_new == 'y' or if_new == 'Y':
+                        self.board.clear()
+                        break
+                    else:
+                        return 
