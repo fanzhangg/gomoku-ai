@@ -6,39 +6,49 @@ class Player_LV:
         self.id = id
         self.opp = 3 - id
         self.stone = stone
+        # self.last = None
 
-    def extend_in_four_directions(self, board: list, i: int, j: int, num: int) -> dict:
-        dic = {}
+    def extend_in_four_directions(self, board: list, i: int, j: int) -> dict:
+        lis = []
 
-        cur_row = ''
-        idx_row = []
-        for k in range(max(j - num, 0), min(j + num + 1, len(board))):
+        cur_row = '3'
+        idx_row = [(len(board), len(board))]
+        for k in range(len(board)):
             cur_row += str(board[i][k])
-            idx_row.append((i,k))
-        dic[cur_row] = idx_row
+            idx_row.append((i, k))
+        cur_row += '3'
+        idx_row.append((len(board), len(board)))
+        lis.append((cur_row, idx_row))
 
-        cur_col = ''
-        idx_col = []
-        for k in range(max(j - num, 0), min(j + num + 1, len(board))):
+        cur_col = '3'
+        idx_col = [(len(board), len(board))]
+        for k in range(len(board)):
             cur_col += str(board[k][j])
-            idx_col.append((k,j))
-        dic[cur_col] = idx_col
+            idx_col.append((k, j))
+        cur_col += '3'
+        idx_col.append((len(board), len(board)))
+        lis.append((cur_col, idx_col))
 
-        cur_backslash = ''
-        idx_backslash = []
-        for k in range(max(-num, -i, -j), min(num + 1, len(board) - i, len(board) - j)):
+        cur_backslash = '3'
+        idx_backslash = [(len(board), len(board))]
+        for k in range(max(-i, -j), min(len(board) - i, len(board) - j)):
             cur_backslash += str(board[i+k][j+k])
             idx_backslash.append((i+k,j+k))
-        dic[cur_backslash] = idx_backslash    
+        cur_backslash += '3'
+        idx_backslash.append((len(board), len(board)))
+        lis.append((cur_backslash, idx_backslash))
 
-        cur_slash = ''
-        idx_slash = []
-        for k in range(max(-num, -i, j - len(board) + 1), min(num + 1, len(board) - i, j)):
+        cur_slash = '3'
+        idx_slash = [(len(board), len(board))]
+        for k in range(max(-i, j - len(board) + 1), min(len(board) - i, j + 1)):
             cur_slash += str(board[i+k][j-k])
             idx_slash.append((i+k,j-k))
-        dic[cur_slash] = idx_slash
+        cur_slash += '3'
+        idx_slash.append((len(board), len(board)))
+        # print("current: " + str((cur_slash, idx_slash)))
+        lis.append((cur_slash, idx_slash))
 
-        return dic
+        return lis
 
     def obligated_move(self, cur_row: str, idx_row: list) -> list:
         ptn_040_opp = '0' + str(self.opp) * 4 + '0'
@@ -48,6 +58,8 @@ class Player_LV:
         ptn_301_opp = str(self.opp) * 3 + '0' + str(self.opp)
         ptn_103_opp = str(self.opp) + '0' + str(self.opp) * 3
         ptn_202_opp = str(self.opp) * 2 + '0' + str(self.opp) * 2
+        ptn_40_opp = '3' + str(self.opp) * 4 + '0'
+        ptn_04_opp = '0' + str(self.opp) * 4 + '3'
 
         ptn_030_opp = '0' + str(self.opp) * 3 + '0'
         ptn_02010_opp = '0' + str(self.opp) * 2 + '0' + str(self.opp) + '0'
@@ -68,6 +80,10 @@ class Player_LV:
             return [-4, idx_row[cur_row.index(ptn_103_opp) + 1]]
         elif ptn_202_opp in cur_row:
             return [-4, idx_row[cur_row.index(ptn_202_opp) + 2]]
+        elif ptn_40_opp in cur_row:
+            return [-4, idx_row[cur_row.index(ptn_40_opp) + 5]]
+        elif ptn_04_opp in cur_row:
+            return [-4, idx_row[cur_row.index(ptn_04_opp)]]
         
         elif ptn_030_opp in cur_row:
             return [-3, idx_row[cur_row.index(ptn_030_opp)], idx_row[cur_row.index(ptn_030_opp) + 4]]
@@ -91,28 +107,30 @@ class Player_LV:
         ptn_301_id = str(self.id) * 3 + '0' + str(self.id)
         ptn_103_id = str(self.id) + '0' + str(self.id) * 3
         ptn_202_id = str(self.id) * 2 + '0' + str(self.id) * 2
+        ptn_40_id = '3' + str(self.id) * 4 + '0'
+        ptn_04_id = '0' + str(self.id) * 4 + '3'
+
+        ptn_030_id = '0' + str(self.id) * 3 + '0'
+        ptn_02010_id = '0' + str(self.id) * 2 + '0' + str(self.id) + '0'
+        ptn_01020_id = '0' + str(self.id) + '0' + str(self.id) * 2 + '0'
 
         if ptn_5_id in cur_row:
-            return 6
+            return 10
 
         elif ptn_040_id in cur_row or ptn_303_id in cur_row or ptn_10301_id in cur_row or ptn_20202_id in cur_row:
             return 5
 
-        elif ptn_041_id in cur_row or ptn_140_id in cur_row or ptn_301_id in cur_row or ptn_103_id in cur_row or ptn_202_id in cur_row:
+        elif ptn_041_id in cur_row or ptn_140_id in cur_row or ptn_301_id in cur_row or ptn_103_id in cur_row or ptn_202_id in cur_row or ptn_40_id in cur_row or ptn_04_id in cur_row:
             return 4
+        
+        elif ptn_030_id in cur_row or ptn_02010_id in cur_row or ptn_01020_id in cur_row:
+            return 3
 
         return -1
     
     def get_moves(self, board: list, row: int, col: int) -> list:
         moves = []
         move_dic = {}
-
-        last_dic = self.extend_in_four_directions(board, row, col, len(board))
-        for cur_row in last_dic:
-            sign = self.obligated_move(cur_row, last_dic[cur_row])
-            if sign[0] != -1:
-                move_dic[sign[0]] = sign[1:]
-
 
         extended_board = [[0 for i in range(len(board) + 4)] for j in range(len(board) + 4)]
         for a in range(len(board)):
@@ -128,40 +146,95 @@ class Player_LV:
                     surround_2 = [extended_board[i-2+2][j-2+2], extended_board[i-2+2][j+2], extended_board[i-2+2][j+2+2], 
                                   extended_board[i+2][j-2+2], extended_board[i+2][j+2+2], 
                                   extended_board[i+2+2][j-2+2], extended_board[i+2+2][j+2], extended_board[i+2+2][j+2+2]]
-
                     if any(surround_1) or self.id in surround_2:
+
+                        # print("possible: " + str((i, j)))
+
                         new_board = copy.deepcopy(board)
                         new_board[i][j] = self.id
+                        row_lis = self.extend_in_four_directions(new_board, i, j)
 
-                        row_dic = self.extend_in_four_directions(new_board, i, j, len(new_board))
-
-                        win_moves = []
-                        for cur_row in row_dic:
-                            win_moves.append(self.win_move(cur_row, row_dic[cur_row]))
-
-                        for sig in win_moves:
-                            if sig != -1:
-                                move_dic[sig] = [(i, j)]
+                        num_fours = 0
+                        num_threes = 0
+                        for cur_row in row_lis:
+                            sign = self.win_move(cur_row[0], cur_row[1])
+                            if sign == 4:
+                                num_fours += 1
+                            elif sign == 3:
+                                num_threes += 1
+                            elif sign != -1:
+                                move_dic[sign] = [(i, j)]
+                        
+                        if num_fours >= 2:
+                            move_dic[8] = [(i, j)]
+                        elif num_fours >= 1 and num_threes >= 1:
+                            move_dic[7] = [(i, j)]
+                        elif num_threes >= 2:
+                            if 6 in move_dic:
+                                move_dic[6].append((i, j))
+                            else:
+                                move_dic[6] = [(i, j)]
 
                         moves.append((i, j))
 
-        if 6 in move_dic:
-            return move_dic[6]
-        elif -5 in move_dic:
-            return move_dic[-5]
-        elif 5 in move_dic:
-            return move_dic[5]
-        elif -4 in move_dic:
-            return move_dic[-4]
-        elif -3 in move_dic:
-            if 4 in move_dic:
+                    if any(surround_1) or self.opp in surround_2:
+                        row_lis_1 = self.extend_in_four_directions(board, i, j)
+
+                        for cur_row in row_lis_1:
+                            sign = self.obligated_move(cur_row[0], cur_row[1])
+                            if sign[0] == -3:
+                                if -3 in move_dic:
+                                    move_dic[-3].extend(sign[1:])
+                                else:
+                                    move_dic[-3] = sign[1:]
+                            elif sign[0] != -1:
+                                move_dic[sign[0]] = sign[1:]
+
+                        new_board = copy.deepcopy(board)
+                        new_board[i][j] = self.opp
+                        row_lis_2 = self.extend_in_four_directions(new_board, i, j)
+
+                        num_fours = 0
+                        num_threes = 0
+                        four_moves = []
+                        three_moves = []
+                        for cur_row in row_lis_2:
+                            sign = self.obligated_move(cur_row[0], cur_row[1])
+                            if sign[0] == -4:
+                                num_fours += 1
+                                four_moves.extend(sign[1:])
+                            elif sign[0] == -3:
+                                num_threes += 1
+                                three_moves.extend(sign[1:])
+
+                        if num_fours >= 2:
+                            move_dic[-8] = [(i, j)] + four_moves
+                        elif num_fours >= 1 and num_threes >= 1:
+                            move_dic[-7] = [(i, j)] + four_moves + three_moves
+                        elif num_threes >= 2:
+                            if -6 in move_dic:
+                                move_dic[-6].append((i, j))
+                                move_dic[-6].extend(three_moves)
+                            else:
+                                move_dic[-6] = [(i, j)] + three_moves
+
+        print("move_dic: " + str(move_dic))
+
+        for n in [10, -5, -4, 5, 8, 7]:
+            if n in move_dic:
+                return move_dic[n]
+        if -3 in move_dic:
+            if  4 in move_dic:
                 return move_dic[4] + move_dic[-3]
             else:
                 return move_dic[-3]
+        for n in [6, -8, -7, -6]:
+            if n in move_dic:
+                return move_dic[n]
 
         return moves
 
-    def evaluate_score(self, cur_row: str) -> int:
+    def evaluate_score(self, cur_row: str, move_idx: int) -> int:
         ptn_5_id = str(self.id) * 5
         ptn_040_id = '0' + str(self.id) * 4 + '0'
         ptn_303_id= str(self.id) * 3 + '0' + str(self.id) * 3
@@ -173,38 +246,82 @@ class Player_LV:
         ptn_301_id = str(self.id) * 3 + '0' + str(self.id)
         ptn_103_id = str(self.id) + '0' + str(self.id) * 3
         ptn_202_id = str(self.id) * 2 + '0' + str(self.id) * 2
+        ptn_40_id = '3' + str(self.id) * 4 + '0'
+        ptn_04_id = '0' + str(self.id) * 4 + '3'
 
         ptn_030_id = '0' + str(self.id) * 3 + '0'
         ptn_02010_id = '0' + str(self.id) * 2 + '0' + str(self.id) + '0'
         ptn_01020_id = '0' + str(self.id) + '0' + str(self.id) * 2 + '0'
 
-        if ptn_5_id in cur_row or ptn_040_id in cur_row or ptn_303_id in cur_row or ptn_10301_id in cur_row or ptn_20202_id in cur_row:
-            return 1000
+        ptn_021_opp = '0' + str(self.opp) * 2 + str(self.id)
+        ptn_120_opp = str(self.id) + str(self.opp) * 2 + '0'
 
-        elif ptn_041_id in cur_row or ptn_140_id in cur_row or ptn_301_id in cur_row or ptn_103_id in cur_row or ptn_202_id in cur_row:
-            return 50
+        ptn_130_opp = str(self.id) + str(self.opp) * 3 + '0'
+        ptn_031_opp = '0' + str(self.opp) * 3 + str(self.id)
+        ptn_02110_opp = '0' + str(self.opp) * 2 + str(self.id) + str(self.opp) + '0'
+        ptn_01120_opp = '0' + str(self.opp) + str(self.id) + str(self.opp) * 2 + '0'
+        ptn_12010_opp = str(self.id) + str(self.opp) * 2 + '0' + str(self.opp) + '0'
+        ptn_01021_opp = '0' + str(self.opp) + '0' + str(self.opp) * 2 + str(self.id)
+        ptn_12010_opp = str(self.id) + str(self.opp) * 2 + '0' + str(self.opp) + '0'
+        ptn_01021_opp = '0' + str(self.opp) + '0' + str(self.opp) * 2 + str(self.id)
 
-        elif ptn_030_id in cur_row or ptn_02010_id in cur_row or ptn_01020_id in cur_row:
-            return 30
+        ptn_020_id = '0' + str(self.id) * 2 + '0'
 
-        else:
-            score = 0
-            cur_row_2 = cur_row[3:-3]
-            cur_row_3 = cur_row[2:-2]
-            cur_row_4 = cur_row[1:-1]
-            if '0' + str(self.id) * 2 + '0' in cur_row_2:
-                score += 3
-            if str(self.opp) + str(self.id) * 3 + '0' in cur_row_3 or '0' + str(self.id) * 3 + str(self.opp) in cur_row_3:
-                score += 2
-            if str(self.id) + str(self.opp) * 2 + str(self.id) in cur_row_3:
-                score += 3
-            if str(self.id) + str(self.opp) * 3 + '0' in cur_row_4 or '0' + str(self.opp) * 3 + str(self.id) in cur_row_4:
-                score += 2
-            return score
+        ptn_130_id = str(self.opp) + str(self.id) * 3 + '0'
+        ptn_031_id = '0' + str(self.id) * 3 + str(self.opp)
 
-    def get_score(self, cur_row: str, idx_row: list, new_board: list, steps: int) -> int:
+        ptn_03_id = '0' + str(self.id) * 3 + '3'
+        ptn_30_id = '3' + str(self.id) * 3 + '0'
+        ptn_0201_id = '0' + str(self.id) * 2 + '0' + str(self.id) + '3'
+        ptn_2010_id = '3' + str(self.id) * 2 + '0' + str(self.id) + '0'
+        ptn_0102_id = '0' + str(self.id) + '0' + str(self.id) * 2 + '3'
+        ptn_1020_id = '3' + str(self.id) + '0' + str(self.id) * 2 + '0'
+
+        ptn_110_opp = str(self.id) + str(self.opp) + '0'
+        ptn_011_opp = '0' + str(self.opp) + str(self.id)
+
+        score = 0
+        cur_row_7 = cur_row[max(move_idx - 7, 0): min(move_idx + 8, len(cur_row))]
+        cur_row_6 = cur_row[max(move_idx - 6, 0): min(move_idx + 7, len(cur_row))]
+        cur_row_5 = cur_row[max(move_idx - 5, 0): min(move_idx + 6, len(cur_row))]
+        cur_row_4 = cur_row[max(move_idx - 4, 0): min(move_idx + 5, len(cur_row))]
+        cur_row_3 = cur_row[max(move_idx - 3, 0): min(move_idx + 4, len(cur_row))]
+        cur_row_2 = cur_row[max(move_idx - 2, 0): min(move_idx + 3, len(cur_row))]
+
+        if ptn_5_id in cur_row_4 or ptn_040_id in cur_row_4 or ptn_303_id in cur_row_6 or ptn_10301_id in cur_row_6 or ptn_20202_id in cur_row_7:
+            score += 1000
+
+        elif ptn_030_id in cur_row_3:
+            score += 8
+
+        elif ptn_041_id in cur_row_4 or ptn_140_id in cur_row_4 or ptn_301_id in cur_row_4 or ptn_103_id in cur_row_4 or ptn_202_id in cur_row_4 or ptn_40_id in cur_row_4 or ptn_04_id in cur_row_4:
+            score += 7
+
+        elif ptn_02010_id in cur_row_4 or ptn_01020_id in cur_row_4:
+            score += 6
+        
+        elif ptn_130_opp in cur_row_4 or ptn_031_opp in cur_row_4 or ptn_02110_opp in cur_row_3 or ptn_01120_opp in cur_row_3:
+            score += 5
+        elif ptn_12010_opp in cur_row_5 or ptn_01021_opp in cur_row_5 or ptn_12010_opp in cur_row_5 or ptn_01021_opp in cur_row_5:
+            score += 4
+
+        elif ptn_021_opp in cur_row_3 or ptn_120_opp in cur_row_3:
+            score += 3
+        elif ptn_020_id in cur_row_2:
+            score += 3
+        elif ptn_130_id in cur_row_3 or ptn_031_id in cur_row_3:
+            score += 2
+        elif ptn_03_id in cur_row_3 or ptn_30_id in cur_row_3 or ptn_0201_id in cur_row_3 or ptn_2010_id in cur_row_3 or ptn_0102_id in cur_row_3 or ptn_1020_id in cur_row_3:
+            score += 1
+        elif ptn_011_opp in cur_row_2 or ptn_110_opp in cur_row_2:
+            score += 1
+
+        return score
+
+    def get_score(self, cur_row: str, idx_row: list, new_board: list, cur_move: tuple, steps: int) -> int:
+        move_idx = idx_row.index(cur_move)
         if steps > 0:
-            return self.evaluate_score(cur_row) 
+            return self.evaluate_score(cur_row, move_idx) 
 
         ptn_5_id = str(self.id) * 5
         ptn_040_id = '0' + str(self.id) * 4 + '0'
@@ -217,40 +334,70 @@ class Player_LV:
         ptn_301_id = str(self.id) * 3 + '0' + str(self.id)
         ptn_103_id = str(self.id) + '0' + str(self.id) * 3
         ptn_202_id = str(self.id) * 2 + '0' + str(self.id) * 2
+        ptn_40_id = '3' + str(self.id) * 4 + '0'
+        ptn_04_id = '0' + str(self.id) * 4 + '3'
 
         ptn_030_id = '0' + str(self.id) * 3 + '0'
         ptn_02010_id = '0' + str(self.id) * 2 + '0' + str(self.id) + '0'
         ptn_01020_id = '0' + str(self.id) + '0' + str(self.id) * 2 + '0'
+
+        ptn_021_opp = '0' + str(self.opp) * 2 + str(self.id)
+        ptn_120_opp = str(self.id) + str(self.opp) * 2 + '0'
+
+        ptn_020_id = '0' + str(self.id) * 2 + '0'
+
+        ptn_130_id = str(self.opp) + str(self.id) * 3 + '0'
+        ptn_031_id = '0' + str(self.id) * 3 + str(self.opp)
+
+        ptn_03_id = '0' + str(self.id) * 3 + '3'
+        ptn_30_id = '3' + str(self.id) * 3 + '0'
+        ptn_0201_id = '0' + str(self.id) * 2 + '0' + str(self.id) + '3'
+        ptn_2010_id = '3' + str(self.id) * 2 + '0' + str(self.id) + '0'
+        ptn_0102_id = '0' + str(self.id) + '0' + str(self.id) * 2 + '3'
+        ptn_1020_id = '3' + str(self.id) + '0' + str(self.id) * 2 + '0'
+
+        ptn_110_opp = str(self.id) + str(self.opp) + '0'
+        ptn_011_opp = '0' + str(self.opp) + str(self.id)
 
         next_moves = []
+        cur_row_7 = cur_row[max(move_idx - 7, 0): min(move_idx + 8, len(cur_row))]
+        cur_row_6 = cur_row[max(move_idx - 6, 0): min(move_idx + 7, len(cur_row))]
+        cur_row_5 = cur_row[max(move_idx - 5, 0): min(move_idx + 6, len(cur_row))]
+        cur_row_4 = cur_row[max(move_idx - 4, 0): min(move_idx + 5, len(cur_row))]
+        cur_row_3 = cur_row[max(move_idx - 3, 0): min(move_idx + 4, len(cur_row))]
+        cur_row_2 = cur_row[max(move_idx - 2, 0): min(move_idx + 3, len(cur_row))]
 
-        if ptn_5_id in cur_row or ptn_040_id in cur_row or ptn_303_id in cur_row or ptn_10301_id in cur_row or ptn_20202_id in cur_row:
+        if ptn_5_id in cur_row_4 or ptn_040_id in cur_row_4 or ptn_303_id in cur_row_6 or ptn_10301_id in cur_row_6 or ptn_20202_id in cur_row_7:
             return 1000
 
-        elif ptn_041_id in cur_row:
+        elif ptn_041_id in cur_row_4:
             next_moves.append(idx_row[cur_row.index(ptn_041_id)])
-        elif ptn_140_id in cur_row:
+        elif ptn_140_id in cur_row_4:
             next_moves.append(idx_row[cur_row.index(ptn_140_id) + 5])
-        elif ptn_301_id in cur_row:
+        elif ptn_301_id in cur_row_4:
             next_moves.append(idx_row[cur_row.index(ptn_301_id) + 3])
-        elif ptn_103_id in cur_row:
+        elif ptn_103_id in cur_row_4:
             next_moves.append(idx_row[cur_row.index(ptn_103_id) + 1])
-        elif ptn_202_id in cur_row:
+        elif ptn_202_id in cur_row_4:
             next_moves.append(idx_row[cur_row.index(ptn_202_id) + 2])
+        elif ptn_40_id in cur_row_4:
+            next_moves.append(idx_row[cur_row.index(ptn_40_id) + 5])
+        elif ptn_04_id in cur_row_4:
+            next_moves.append(idx_row[cur_row.index(ptn_04_id)])
 
-        elif ptn_030_id in cur_row:
+        elif ptn_030_id in cur_row_3:
             left_idx = cur_row.index(ptn_030_id)
             right_idx = left_idx + 4
             next_moves.append(idx_row[left_idx])
             next_moves.append(idx_row[right_idx])
-        elif ptn_02010_id in cur_row:
+        elif ptn_02010_id in cur_row_4:
             left_idx = cur_row.index(ptn_02010_id)
             middle_idx = left_idx + 3
             right_idx = left_idx + 5
             next_moves.append(idx_row[left_idx])
             next_moves.append(idx_row[middle_idx])
             next_moves.append(idx_row[right_idx])
-        elif ptn_01020_id in cur_row:
+        elif ptn_01020_id in cur_row_4:
             left_idx = cur_row.index(ptn_01020_id)
             middle_idx = left_idx + 3
             right_idx = left_idx + 5
@@ -260,17 +407,16 @@ class Player_LV:
 
         else:
             score = 0
-            cur_row_2 = cur_row[3:-3]
-            cur_row_3 = cur_row[2:-2]
-            cur_row_4 = cur_row[1:-1]
-            if '0' + str(self.id) * 2 + '0' in cur_row_2:
+            if ptn_021_opp in cur_row_3 or ptn_120_opp in cur_row_3:
                 score += 3
-            if str(self.opp) + str(self.id) * 3 + '0' in cur_row_3 or '0' + str(self.id) * 3 + str(self.opp) in cur_row_3:
-                score += 2
-            if str(self.id) + str(self.opp) * 2 + str(self.id) in cur_row_3:
+            elif ptn_020_id in cur_row_2:
                 score += 3
-            if str(self.id) + str(self.opp) * 3 + '0' in cur_row_4 or '0' + str(self.opp) * 3 + str(self.id) in cur_row_4:
+            elif ptn_130_id in cur_row_3 or ptn_031_id in cur_row_3:
                 score += 2
+            elif ptn_03_id in cur_row_3 or ptn_30_id in cur_row_3 or ptn_0201_id in cur_row_3 or ptn_2010_id in cur_row_3 or ptn_0102_id in cur_row_3 or ptn_1020_id in cur_row_3:
+                score += 1
+            elif ptn_011_opp in cur_row_2 or ptn_110_opp in cur_row_2:
+                score += 1
             return score
         
         scores = []
@@ -286,22 +432,29 @@ class Player_LV:
 
     def get_result(self, board: list, last_move: tuple, steps: int) -> tuple:
         moves = self.get_moves(board, last_move[0], last_move[1])
+
+        # print("moves: " + str(moves))
+
         if len(moves) == 1:
             return (moves[0], 1000)
 
         scores = {}
         for (i, j) in moves:
-            # i = move[0]
-            # j = move[1]
 
             new_board = copy.deepcopy(board)
             new_board[i][j] = self.id
 
-            row_dic = self.extend_in_four_directions(new_board, i, j, 5)
+            row_lis = self.extend_in_four_directions(new_board, i, j)
+
+            # print("row_lis: " + str((i,j)) + "\n" + str(row_lis))
+
             scores[(i, j)] = 0
-            for cur_row in row_dic:
-                scores[(i, j)] += self.get_score(cur_row, row_dic[cur_row], new_board, steps)
-            
+            for cur_row in row_lis:
+                scores[(i, j)] += self.get_score(cur_row[0], cur_row[1], new_board, (i, j), steps)
+
+        print("Steps: " + str(steps)) 
+        print("Scores: " + str(scores))
+
         best_move = (7, 8)
         best_score = -1000
         for move in scores:
@@ -313,4 +466,7 @@ class Player_LV:
 
     def move(self, board: Board) -> tuple:
         step = 0
-        return self.get_result(board.board, board.last_move, step)[0]
+        last_stone = board.last_move
+        # if self.last is not None:
+        #     last_stone = self.last
+        return self.get_result(board.board, last_stone, step)[0]

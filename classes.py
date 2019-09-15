@@ -143,6 +143,7 @@ class Game:
                 return True
 
     def play_one_round(self):
+        self.board.print_board()
         while (1):
             for p in (self.p1, self.p2):
                 print(f"It is {p.stone}'s turn'" + "\n")
