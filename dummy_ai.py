@@ -93,6 +93,11 @@ class DummyAI:
                 if len(eyes) == 2:  # live three
                     return eyes[0]
 
+        # Detect double
+        double_instersection = self.get_double_intersection(board)
+        if double_instersection:
+            return double_instersection
+
         # Detect dead three
         for step in steps:
             max_chain = self.get_max_chain_at_step(board, coord, step)
@@ -142,6 +147,39 @@ class DummyAI:
         except IndexError:
             pass
         return eyes
+
+    def get_double_intersection(self, board)->tuple or None:
+        for i in range(board.rows):
+            for j in range(board.cols):
+                if board.get(i, j) == 0 and self.is_double_intersection(board, i, j):
+                    return i, j
+        return None
+
+    def is_double_intersection(self, board, x: int, y: int):
+        """
+        Check if the point (x,y) is a candidate of intersection of double chains
+        :param board:
+        :param x:
+        :param y:
+        :return:
+        """
+        board.put(self.opponent, x, y)    # suppose there is an opponent's stone, check if this will cause double
+        chain1 = None
+        chain2 = None
+        for step in ((0, 1), (1, 0), (1, 1), (1, -1)):
+            chain = self.get_max_chain_at_step(board, (x, y), step)
+            eyes = self.get_unblocked_eyes(board, chain)
+            if (chain.size == 3 and len(eyes) == 2) or (chain.size == 4 and len(eyes) >= 1):  # live three or dead four
+                if not chain1:
+                    chain1 = chain
+                elif not chain2:
+                    chain2 = chain
+        if chain1 and chain2:
+            board.board[x][y] = 0
+            return True
+        else:
+            board.board[x][y] = 0
+            return False
 
     def get_max_chain_at_step(self, board, coord: tuple, step: tuple)->Chain:
         """
