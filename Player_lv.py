@@ -218,7 +218,7 @@ class Player_LV:
                             else:
                                 move_dic[-6] = [(i, j)] + three_moves
 
-        print("move_dic: " + str(move_dic))
+        # print("move_dic: " + str(move_dic))
 
         for n in [10, -5, -4, 5, 8, 7]:
             if n in move_dic:
@@ -452,8 +452,8 @@ class Player_LV:
             for cur_row in row_lis:
                 scores[(i, j)] += self.get_score(cur_row[0], cur_row[1], new_board, (i, j), steps)
 
-        print("Steps: " + str(steps)) 
-        print("Scores: " + str(scores))
+        # print("Steps: " + str(steps)) 
+        # print("Scores: " + str(scores))
 
         best_move = (7, 8)
         best_score = -1000
