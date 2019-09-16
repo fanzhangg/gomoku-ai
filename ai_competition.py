@@ -1,12 +1,12 @@
 from dummy_ai import DummyAI
-# from Player_lv import PlayerLV
+from Player_lv import Playerlv
 from gomoku import PlayerLV, MoveTree
 from classes import *
                 
 if __name__ == "__main__":
-    Player_lv = PlayerLV(1, "Black")
+    Player_lv = Playerlv(1, "Black")
+    Player_lv2 = PlayerLV(1, "White")
     Player_zf = DummyAI(2, 1, "White")
-    Player_lv2 = PlayerLV(2, "White")
 
     Player_black = Player(1, "Black")
     Player_white = Player(2, "White")

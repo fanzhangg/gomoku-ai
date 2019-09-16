@@ -2,7 +2,7 @@ import copy
 from classes import Board
     
 
-class PlayerLV:
+class Playerlv:
     def __init__(self, id: int, stone: str) -> None:
         self.id = id
         self.opp = 3 - id
