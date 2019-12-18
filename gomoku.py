@@ -366,7 +366,7 @@ class Player_LV:
 
 class Player:
     def __init__(self, id: int, stone: str):
-        self.id = id
+        self.opponent = id
         self.stone = stone
 
     def move(self, board: Board):
@@ -451,7 +451,7 @@ class Game:
 
     """
     check whether the player wins the game when put a stone at the coord
-    id: 1 for black stone, 2 for white stone
+    opponent: 1 for black stone, 2 for white stone
     coord: (row, col)
     return: true if wins, else false
     """
@@ -467,9 +467,9 @@ class Game:
             for p in (self.p1, self.p2):
                 print(f"It is {p.stone}'s turn'")
                 row, col = p.move(self.board)
-                self.board.put(p.id, row, col)
+                self.board.put(p.opponent, row, col)
                 self.board.print_board()
-                if self.is_win(p.id, (row, col)) == True:
+                if self.is_win(p.opponent, (row, col)) == True:
                     print(f"OMG, {p.stone} wins!")
                     return
 
