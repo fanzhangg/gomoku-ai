@@ -1,9 +1,12 @@
+import numpy as np
+
+
 class Board:
     def __init__(self, rows: int, cols: int) -> None:
         self.rows = rows
         self.cols = cols
         self.last_move = (-1, -1)
-        self.board = [[0 for i in range(cols)] for j in range(rows)]    # row major board
+        self.board = np.zeros((rows, cols), dtype=int)   # row major board
         self.sign_dic = {0: "_", 1: "1", 2: "2"}
     
     def print_board(self) -> None:
@@ -25,9 +28,7 @@ class Board:
         print("")
 
     def clear(self) -> None:
-        for i in range(self.rows):
-            for j in range(self.cols):
-                self.board[i][j] = 0
+        self.board.fill(0)
 
     def get(self, row: int, col: int):
         if row < 0 or row >= self.rows:
@@ -44,12 +45,18 @@ class Board:
         self.board[row][col] = id
         self.last_move = (row, col)
 
+
 class Player:
     def __init__(self, id: int, stone: str):
         self.id = id
         self.stone = stone
 
     def move(self, board: Board):
+        """
+        Ask for the user's input until a valid one appears, and then update the board
+        :param board:
+        :return:
+        """
         while 1:
             coord = input(">")
             coord = coord.split(" ")
@@ -75,7 +82,7 @@ class Player:
             if col < 0 or col >= board.cols:
                 print("col out of bound")
                 continue
-            
+
             if board.get(row, col) != 0:
                 print(f"({row}, {col}) has been occupied")
                 continue
@@ -89,7 +96,7 @@ class Game:
         self.p2 = p2
 
     """
-    Check wether there is an unbreakable chain of 5 stones at coord such as
+    Check whether there is an unbreakable chain of 5 stones at coord such as
     the coordinates of the adjacent stone is the coordinate of the stone +/- step
     :return: true if there is a chain of 5 stones, else false
     """
