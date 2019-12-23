@@ -1,12 +1,13 @@
 import copy
 from classes import Board
+    
 
-class Player_LV:
+class Playerlv:
     def __init__(self, id: int, stone: str) -> None:
         self.id = id
         self.opp = 3 - id
         self.stone = stone
-        # self.last = None
+        self.max_steps = 1
 
     def extend_in_four_directions(self, board: list, i: int, j: int) -> dict:
         lis = []
@@ -45,7 +46,6 @@ class Player_LV:
             idx_slash.append((i+k,j-k))
         cur_slash += '3'
         idx_slash.append((len(board), len(board)))
-        # print("current: " + str((cur_slash, idx_slash)))
         lis.append((cur_slash, idx_slash))
 
         return lis
@@ -128,7 +128,7 @@ class Player_LV:
 
         return -1
     
-    def get_moves(self, board: list, row: int, col: int) -> list:
+    def get_moves(self, board: list) -> list:
         moves = []
         move_dic = {}
 
@@ -261,9 +261,9 @@ class Player_LV:
         ptn_02110_opp = '0' + str(self.opp) * 2 + str(self.id) + str(self.opp) + '0'
         ptn_01120_opp = '0' + str(self.opp) + str(self.id) + str(self.opp) * 2 + '0'
         ptn_12010_opp = str(self.id) + str(self.opp) * 2 + '0' + str(self.opp) + '0'
+        ptn_02011_opp = '0' + str(self.opp) * 2 + '0' + str(self.opp) + str(self.id)
         ptn_01021_opp = '0' + str(self.opp) + '0' + str(self.opp) * 2 + str(self.id)
-        ptn_12010_opp = str(self.id) + str(self.opp) * 2 + '0' + str(self.opp) + '0'
-        ptn_01021_opp = '0' + str(self.opp) + '0' + str(self.opp) * 2 + str(self.id)
+        ptn_11020_opp = str(self.id) + str(self.opp) + '0' + str(self.opp) * 2 + '0'
 
         ptn_020_id = '0' + str(self.id) * 2 + '0'
 
@@ -302,7 +302,7 @@ class Player_LV:
         
         elif ptn_130_opp in cur_row_4 or ptn_031_opp in cur_row_4 or ptn_02110_opp in cur_row_3 or ptn_01120_opp in cur_row_3:
             score += 5
-        elif ptn_12010_opp in cur_row_5 or ptn_01021_opp in cur_row_5 or ptn_12010_opp in cur_row_5 or ptn_01021_opp in cur_row_5:
+        elif ptn_12010_opp in cur_row_5 or ptn_01021_opp in cur_row_5 or ptn_02011_opp in cur_row_5 or ptn_11020_opp in cur_row_5:
             score += 4
 
         elif ptn_021_opp in cur_row_3 or ptn_120_opp in cur_row_3:
@@ -320,7 +320,7 @@ class Player_LV:
 
     def get_score(self, cur_row: str, idx_row: list, new_board: list, cur_move: tuple, steps: int) -> int:
         move_idx = idx_row.index(cur_move)
-        if steps > 0:
+        if steps > self.max_steps:
             return self.evaluate_score(cur_row, move_idx) 
 
         ptn_5_id = str(self.id) * 5
@@ -341,31 +341,11 @@ class Player_LV:
         ptn_02010_id = '0' + str(self.id) * 2 + '0' + str(self.id) + '0'
         ptn_01020_id = '0' + str(self.id) + '0' + str(self.id) * 2 + '0'
 
-        ptn_021_opp = '0' + str(self.opp) * 2 + str(self.id)
-        ptn_120_opp = str(self.id) + str(self.opp) * 2 + '0'
-
-        ptn_020_id = '0' + str(self.id) * 2 + '0'
-
-        ptn_130_id = str(self.opp) + str(self.id) * 3 + '0'
-        ptn_031_id = '0' + str(self.id) * 3 + str(self.opp)
-
-        ptn_03_id = '0' + str(self.id) * 3 + '3'
-        ptn_30_id = '3' + str(self.id) * 3 + '0'
-        ptn_0201_id = '0' + str(self.id) * 2 + '0' + str(self.id) + '3'
-        ptn_2010_id = '3' + str(self.id) * 2 + '0' + str(self.id) + '0'
-        ptn_0102_id = '0' + str(self.id) + '0' + str(self.id) * 2 + '3'
-        ptn_1020_id = '3' + str(self.id) + '0' + str(self.id) * 2 + '0'
-
-        ptn_110_opp = str(self.id) + str(self.opp) + '0'
-        ptn_011_opp = '0' + str(self.opp) + str(self.id)
-
         next_moves = []
         cur_row_7 = cur_row[max(move_idx - 7, 0): min(move_idx + 8, len(cur_row))]
         cur_row_6 = cur_row[max(move_idx - 6, 0): min(move_idx + 7, len(cur_row))]
-        cur_row_5 = cur_row[max(move_idx - 5, 0): min(move_idx + 6, len(cur_row))]
         cur_row_4 = cur_row[max(move_idx - 4, 0): min(move_idx + 5, len(cur_row))]
         cur_row_3 = cur_row[max(move_idx - 3, 0): min(move_idx + 4, len(cur_row))]
-        cur_row_2 = cur_row[max(move_idx - 2, 0): min(move_idx + 3, len(cur_row))]
 
         if ptn_5_id in cur_row_4 or ptn_040_id in cur_row_4 or ptn_303_id in cur_row_6 or ptn_10301_id in cur_row_6 or ptn_20202_id in cur_row_7:
             return 1000
@@ -406,67 +386,57 @@ class Player_LV:
             next_moves.append(idx_row[right_idx])
 
         else:
-            score = 0
-            if ptn_021_opp in cur_row_3 or ptn_120_opp in cur_row_3:
-                score += 3
-            elif ptn_020_id in cur_row_2:
-                score += 3
-            elif ptn_130_id in cur_row_3 or ptn_031_id in cur_row_3:
-                score += 2
-            elif ptn_03_id in cur_row_3 or ptn_30_id in cur_row_3 or ptn_0201_id in cur_row_3 or ptn_2010_id in cur_row_3 or ptn_0102_id in cur_row_3 or ptn_1020_id in cur_row_3:
-                score += 1
-            elif ptn_011_opp in cur_row_2 or ptn_110_opp in cur_row_2:
-                score += 1
-            return score
+            return self.evaluate_score(cur_row, move_idx) 
         
         scores = []
         for next_move in next_moves:
             next_board = copy.deepcopy(new_board)
             next_board[next_move[0]][next_move[1]] = self.opp
             if len(next_moves) == 1:
-                scores.append(self.get_result(next_board, next_move, steps)[1])
+                scores.append(self.get_result(next_board, steps)[1])
             else:
-                scores.append(self.get_result(next_board, next_move, steps + 1)[1])
-        return max(scores)
-        # return (4 - len(scores)) * 10
+                scores.append(self.get_result(next_board, steps + 1)[1])
+        return min(scores)
 
-    def get_result(self, board: list, last_move: tuple, steps: int) -> tuple:
-        moves = self.get_moves(board, last_move[0], last_move[1])
-
-        # print("moves: " + str(moves))
-
+    def get_result(self, board: list, steps: int) -> tuple:
+        moves = self.get_moves(board)
         if len(moves) == 1:
             return (moves[0], 1000)
 
+        # print("moves: " + str(moves))
+
         scores = {}
-        for (i, j) in moves:
+        for move in moves:
+            i = move[0]
+            j = move[1]
 
             new_board = copy.deepcopy(board)
             new_board[i][j] = self.id
 
             row_lis = self.extend_in_four_directions(new_board, i, j)
 
-            # print("row_lis: " + str((i,j)) + "\n" + str(row_lis))
-
-            scores[(i, j)] = 0
+            scores[move] = 0
             for cur_row in row_lis:
-                scores[(i, j)] += self.get_score(cur_row[0], cur_row[1], new_board, (i, j), steps)
+                scores[move] += self.get_score(cur_row[0], cur_row[1], new_board, move, steps)
+                if scores[move] >= 1000:
+
+                    # print("Steps: " + str(steps)) 
+                    # print("Scores: " + str(scores))
+
+                    return (move, scores[move])
 
         # print("Steps: " + str(steps)) 
         # print("Scores: " + str(scores))
 
         best_move = (7, 8)
         best_score = -1000
-        for move in scores:
-            if scores[move] > best_score:
-                best_move = move
-                best_score = scores[move]
+        for mov in scores:
+            if scores[mov] > best_score:
+                best_move = mov
+                best_score = scores[mov]
         
         return (best_move, best_score)
 
     def move(self, board: Board) -> tuple:
         step = 0
-        last_stone = board.last_move
-        # if self.last is not None:
-        #     last_stone = self.last
-        return self.get_result(board.board, last_stone, step)[0]
+        return self.get_result(board.board, step)[0]
