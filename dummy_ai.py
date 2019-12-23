@@ -40,7 +40,7 @@ class DummyAI:
         else:
             return x+1, y+1
 
-    def attack(self, board:Board)->tuple:
+    def attack(self, board: Board)->tuple:
         pass
 
     def move(self, board)->tuple:
