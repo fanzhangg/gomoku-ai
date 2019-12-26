@@ -13,9 +13,9 @@ if __name__ == "__main__":
 
     # Can choose different modes
     # game = Game(Board(15, 15), Player_lv, Player_lv2)
-    game = Game(Board(15, 15), Player_lv, Player_zf)
+    # game = Game(Board(15, 15), Player_lv, Player_zf)
     # game = Game(Board(15, 15), Player_zf, Player_lv)
-    # game = Game(Board(15, 15), Player_lv, Player_white)
+    game = Game(Board(15, 15), Player_lv2, Player_white)
     # game = Game(Board(15, 15), Player_black, Player_lv)
     # game = Game(Board(15, 15), Player_zf, Player_black)
     # game = Game(Board(15, 15), Player_black, Player_zf)
