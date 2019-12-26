@@ -1,5 +1,4 @@
-from classes import Board
-
+import numpy as np
 
 def split_row_by_oppo(row: list, id: int, oppo: int):
     """
@@ -13,14 +12,16 @@ def split_row_by_oppo(row: list, id: int, oppo: int):
     frag = []
     for i in range(len(row)):
         num = row[i]
-        if num == oppo and not frag == []:
-            if 0 in frag:  # the chain has a gap, so it is alive
+        if num == oppo:  # encounter a oppo stone
+            if not frag == [] and 0 in frag:  # the chain has a gap, so it is alive
                 frags.append(frag)
-            frag = []
-        elif num == oppo:
-            pass
-        else:
+                frag = []
+        else:   # is 0 or self id
             frag.append(num)
+
+        if i == len(row) - 1:  # reach the end of the row
+            if not frag == [] and 0 in frag:
+                frags.append(frag)
     return frags
     # frags = []
     # frag = [oppo]
@@ -50,7 +51,7 @@ def split_row_by_multi_0(frags):
     for row in frags:
         sub_chains = []
         li = []
-        is_chain = True
+        is_chain = False
 
         if not row[0] == 0:
             li = [2]
@@ -151,6 +152,8 @@ def eval_row(row: [int], id: int, oppo: int)->int:
             for chain in chains_by_single_0:
                 chain_score = scores_dict[chain.length][chain.is_alive]
                 total_score += chain_score
+                print(f"chain: {chain}")
+                print(f"total score: {total_score}, chain score: {chain_score}")
             continue
 
         chains_by_single_0 = split_by_single_0(row, id, oppo)
@@ -158,6 +161,8 @@ def eval_row(row: [int], id: int, oppo: int)->int:
         chains_in_frag = combine_tokens(chains_by_single_0)
         for chain in chains_in_frag:    # The frag has 0 gaps
             chain_score = scores_dict[chain.length][chain.is_alive]
+            print(f"chain: {chain}")
+            print(f"total score: {total_score}, chain score: {chain_score}")
             total_score += chain_score
         # chains.extend(chains_in_frag)
 
@@ -215,7 +220,12 @@ def eval_board(board, id: int, oppo: int):
 
 
 # test_row = [1, 0, 1, 0, 1, 1, 0, 1, 2, 2, 1, 0, 1, 1, 0, 0, 1, 2]
-test_board = Board(5, 5)
+test_board = np.array([
+    [1, 1, 1, 0],
+    [0, 0, 0, 0],
+    [0, 1, 0, 0],
+    [0, 0, 0, 0]
+])
 test_row = [2, 0, 1, 1, 0, 1, 0, 0, 2]
-score = eval_row(test_row, 1, 2)
+score = eval_board(test_board, 1, 2)
 print(score)
