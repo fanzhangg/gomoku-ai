@@ -198,7 +198,7 @@ def eval_board(board, id: int, oppo: int):
         total_score = total_score + row_score - oppo_row_score
 
     for j in range(num_rows):
-        col = board.board[:, j]
+        col = board[:, j]
 
         col_score = eval_row(col, id, oppo)
         oppo_row_score = eval_row(col, oppo, id)
@@ -206,7 +206,7 @@ def eval_board(board, id: int, oppo: int):
 
     diags = [board[::-1,:].diagonal(i) for i in range(-num_rows+1, num_rows)]
     diags.extend(board.diagonal(i) for i in range(num_rows-1, -num_rows, -1))
-    for diag in board.board:
+    for diag in diags:
         diag_score = eval_row(diag, id, oppo)
         oppo_diag_score = eval_row(diag, oppo, id)
         total_score = total_score + diag_score - oppo_diag_score
