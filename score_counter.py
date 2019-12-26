@@ -169,8 +169,13 @@ def eval_row(row: [int], id: int, oppo: int)->int:
 
         chains_in_frag = combine_tokens(chains_by_single_0)
         for chain in chains_in_frag:    # The frag has 0 gaps
-            chain_score = get_score(chain.length, chain.is_alive)
-            total_score += chain_score / 10     # regress to a previous case
+            if chain.is_alive and chain.length == 5:    # 0 1 1 0 1 1 1 0
+                total_score += 1000
+            elif not chain.is_alive and chain.length == 4:  # 2 1 1 0 1 1 0
+                total_score += 1000
+            else:
+                chain_score = get_score(chain.length, chain.is_alive)
+                total_score += chain_score / 10     # regress to a previous case
         # chains.extend(chains_in_frag)
     return total_score
 
@@ -240,13 +245,14 @@ def eval_board(board, id: int, oppo: int):
 
 # test_row = [1, 0, 1, 0, 1, 1, 0, 1, 2, 2, 1, 0, 1, 1, 0, 0, 1, 2]
 test_board = np.array([
-    [0, 0, 0, 0, 0],
-    [0, 0, 0, 2, 0],
-    [0, 0, 2, 0, 0],
-    [0, 2, 0, 0, 0],
-    [0, 0, 0, 0, 0]
+    [0, 0, 0, 0, 1, 0],
+    [0, 0, 0, 2, 0, 0],
+    [0, 0, 1, 0, 0, 0],
+    [0, 1, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0]
 ])
-test_row = [0, 2, 2, 2, 2, 1]
-# score = eval_board(test_board, 1, 2)
-score = eval_row(test_row, 2, 1)
+# test_row = [0, 1, 2, 0, 2, 2, 1]
+score = eval_board(test_board, 1, 2)
+# score = eval_row(test_row, 2, 1)
 print(score)
