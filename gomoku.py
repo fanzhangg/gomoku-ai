@@ -214,7 +214,8 @@ class PlayerLV:
             row_lis = self.extend_in_four_directions(tree.board, tree.move)
             score = 0
             for cur_row in row_lis:
-                score += eval_row(cur_row[0], self.id, 3 - self.id) - eval_row(cur_row[0], 3 - self.id, self.id)
+                for n in range(len(cur_row[0])):
+                    score += eval_row(cur_row[0][n], self.id, 3 - self.id) - eval_row(cur_row[0][n], 3 - self.id, self.id)
             tree.set_score(score)
             # print("Steps and Score -- " + str(steps) + ": " + str(score))
             return None
