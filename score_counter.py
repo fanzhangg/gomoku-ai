@@ -1,5 +1,4 @@
 from classes import Board
-import numpy as np
 
 
 def split_row_by_oppo(row: list, id: int, oppo: int):
@@ -185,7 +184,7 @@ scores_dict = {
 
 def eval_board(board, id: int, oppo: int):
     """
-    :param board:
+    :param board: an numpy 2d-array
     :param id:
     :param oppo:
     :return: The total score of the board
@@ -193,7 +192,7 @@ def eval_board(board, id: int, oppo: int):
     total_score = 0
     num_rows = len(board)
 
-    for row in board.board:
+    for row in board:
         row_score = eval_row(row, id, oppo)
         oppo_row_score = eval_row(row, oppo, id)
         total_score = total_score + row_score - oppo_row_score
