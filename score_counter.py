@@ -152,8 +152,8 @@ def eval_row(row: [int], id: int, oppo: int)->int:
             for chain in chains_by_single_0:
                 chain_score = scores_dict[chain.length][chain.is_alive]
                 total_score += chain_score
-                print(f"chain: {chain}")
-                print(f"total score: {total_score}, chain score: {chain_score}")
+                # print(f"chain: {chain}")
+                # print(f"player: {id}, total score: {total_score}, chain score: {chain_score}")
             continue
 
         chains_by_single_0 = split_by_single_0(row, id, oppo)
@@ -161,11 +161,10 @@ def eval_row(row: [int], id: int, oppo: int)->int:
         chains_in_frag = combine_tokens(chains_by_single_0)
         for chain in chains_in_frag:    # The frag has 0 gaps
             chain_score = scores_dict[chain.length][chain.is_alive]
-            print(f"chain: {chain}")
-            print(f"total score: {total_score}, chain score: {chain_score}")
+            # print(f"chain: {chain}")
+            # print(f"player: {id}, total score: {total_score}, chain score: {chain_score}")
             total_score += chain_score
         # chains.extend(chains_in_frag)
-
     return total_score
 
 
@@ -221,11 +220,13 @@ def eval_board(board, id: int, oppo: int):
 
 # test_row = [1, 0, 1, 0, 1, 1, 0, 1, 2, 2, 1, 0, 1, 1, 0, 0, 1, 2]
 test_board = np.array([
-    [1, 1, 1, 0],
-    [0, 0, 0, 0],
-    [0, 1, 0, 0],
-    [0, 0, 0, 0]
+    [1, 1, 1, 1, 0],
+    [0, 1, 0, 2, 0],
+    [0, 0, 1, 0, 0],
+    [0, 2, 0, 1, 0],
+    [2, 0, 0, 0, 1]
 ])
-test_row = [2, 0, 1, 1, 0, 1, 0, 0, 2]
+test_row = [0, 1, 1, 0]
 score = eval_board(test_board, 1, 2)
+# score = eval_row(test_row, 1, 2)
 print(score)
