@@ -1,11 +1,11 @@
 import copy
 from classes import Board
 import random
-from score_counter import eval_row
+from score_counter import eval_board
 
 
 class MoveTree:
-    def __init__(self, board: list, move: tuple, is_turn: bool) -> None:
+    def __init__(self, board, move: tuple, is_turn: bool) -> None:
         self.board = board
         self.move = move
         self.score = None
@@ -64,37 +64,27 @@ class PlayerLV:
         idx_row = [(len(board), len(board))]
         for k in range(len(board)):
             cur_row += str(board[i][k])
-            idx_row.append((i, k))
         cur_row += '3'
-        idx_row.append((len(board), len(board)))
-        lis.append((cur_row, idx_row))
+        lis.append(cur_row)
 
         cur_col = '3'
         idx_col = [(len(board), len(board))]
         for k in range(len(board)):
             cur_col += str(board[k][j])
-            idx_col.append((k, j))
         cur_col += '3'
-        idx_col.append((len(board), len(board)))
-        lis.append((cur_col, idx_col))
+        lis.append(cur_col)
 
         cur_backslash = '3'
-        idx_backslash = [(len(board), len(board))]
         for k in range(max(-i, -j), min(len(board) - i, len(board) - j)):
             cur_backslash += str(board[i+k][j+k])
-            idx_backslash.append((i+k,j+k))
         cur_backslash += '3'
-        idx_backslash.append((len(board), len(board)))
-        lis.append((cur_backslash, idx_backslash))
+        lis.append(cur_backslash)
 
         cur_slash = '3'
-        idx_slash = [(len(board), len(board))]
         for k in range(max(-i, j - len(board) + 1), min(len(board) - i, j + 1)):
             cur_slash += str(board[i+k][j-k])
-            idx_slash.append((i+k,j-k))
         cur_slash += '3'
-        idx_slash.append((len(board), len(board)))
-        lis.append((cur_slash, idx_slash))
+        lis.append(cur_slash)
 
         return lis
 
@@ -162,7 +152,7 @@ class PlayerLV:
                         next_row = self.extend_in_four_directions(new_board, (i, j))
 
                         for k in range(4):
-                            sign = self.win_move(next_row[k][0], original_rows[k][0], self.id)
+                            sign = self.win_move(next_row[k], original_rows[k], self.id)
                             if sign != -1:
                                 if sign in move_dic:
                                     move_dic[sign].append((i, j))
@@ -177,7 +167,7 @@ class PlayerLV:
                         next_row = self.extend_in_four_directions(new_board, (i, j))
 
                         for k in range(4):
-                            sign = self.win_move(next_row[k][0], original_rows[k][0], self.opp)
+                            sign = self.win_move(next_row[k], original_rows[k], self.opp)
                             if sign != -1:
                                 if sign in move_dic:
                                     move_dic[sign].append((i, j))
@@ -200,7 +190,7 @@ class PlayerLV:
         return moves
 
 
-    def calculate_score(self, tree, id: int, steps: int) -> None:
+    def build_tree(self, tree, id: int, steps: int) -> None:
         # if not tree.is_valid():
         #     print("haha")
         #     return None
@@ -210,12 +200,8 @@ class PlayerLV:
         # if len(moves) > 10:
         #     moves = moves[:8]
 
-        if steps <= 0 or moves == []:
-            row_lis = self.extend_in_four_directions(tree.board, tree.move)
-            score = 0
-            for cur_row in row_lis:
-                for n in range(len(cur_row[0])):
-                    score += eval_row(cur_row[0][n], self.id, 3 - self.id) - eval_row(cur_row[0][n], 3 - self.id, self.id)
+        if (len(moves) > 3 and steps <= 0) or len(moves) == 0:
+            score = eval_board(tree.board, self.id, self.opp)
             tree.set_score(score)
             # print("Steps and Score -- " + str(steps) + ": " + str(score))
             return None
@@ -226,7 +212,7 @@ class PlayerLV:
             next_tree = MoveTree(next_board, move, id == self.id)
             tree.add_child(next_tree)
 
-            self.calculate_score(next_tree, 3 - id, steps - 1)
+            self.build_tree(next_tree, 3 - id, steps - 1)
 
         if tree.is_turn:
             tree.set_score(max(child.score for child in tree.children))
@@ -245,7 +231,7 @@ class PlayerLV:
 
         move_tree = MoveTree(board.board, board.last_move, False)
 
-        self.calculate_score(move_tree, self.id, 2)
+        self.build_tree(move_tree, self.id, 2)
 
         print("num_of_leafs: " + str(move_tree.get_num_leafs(move_tree)))
 
