@@ -191,21 +191,22 @@ def eval_board(board, id: int, oppo: int):
     :return: The total score of the board
     """
     total_score = 0
+    num_rows = len(board)
 
     for row in board.board:
         row_score = eval_row(row, id, oppo)
         oppo_row_score = eval_row(row, oppo, id)
         total_score = total_score + row_score - oppo_row_score
 
-    for j in range(board.cols):
+    for j in range(num_rows):
         col = board.board[:, j]
 
         col_score = eval_row(col, id, oppo)
         oppo_row_score = eval_row(col, oppo, id)
         total_score = total_score + col_score - oppo_row_score
 
-    diags = [matrix[::-1,:].diagonal(i) for i in range(-board.rows+1, board.rows)]
-    diags.extend(matrix.diagonal(i) for i in range(,-4,-1))
+    diags = [board[::-1,:].diagonal(i) for i in range(-num_rows+1, num_rows)]
+    diags.extend(board.diagonal(i) for i in range(num_rows-1, -num_rows, -1))
     for diag in board.board:
         diag_score = eval_row(diag, id, oppo)
         oppo_diag_score = eval_row(diag, oppo, id)
