@@ -144,13 +144,8 @@ def eval_solid_chain(chain: [int], id: int, oppo: int)->int:
             is_alive = False
         elif x == id:
             length += 1
-    if length > 5:
-        return 10000000000000
 
-    if length < 1:
-        return 0
-
-    return scores_dict[length][is_alive]
+    return get_score(length, is_alive)
 
 
 def eval_row(row: [int], id: int, oppo: int)->int:
@@ -174,10 +169,18 @@ def eval_row(row: [int], id: int, oppo: int)->int:
 
         chains_in_frag = combine_tokens(chains_by_single_0)
         for chain in chains_in_frag:    # The frag has 0 gaps
-            chain_score = scores_dict[chain.length][chain.is_alive]
+            chain_score = get_score(chain.length, chain.is_alive)
             total_score += chain_score / 10     # regress to a previous case
         # chains.extend(chains_in_frag)
     return total_score
+
+
+def get_score(length: int, is_alive: bool)->int:
+    if length > 5:
+        return 100000
+    if length < 1:
+        return 0
+    return scores_dict[length][is_alive]
 
 
 scores_dict = {
@@ -185,8 +188,7 @@ scores_dict = {
     2: {False: 10, True: 100},
     3: {False: 100, True: 1000},
     4: {False: 1000, True: 10000},
-    5: {False: 100000, True: 100000},
-    6: {False: 100000, True: 100000}
+    5: {False: 100000, True: 100000}
 }
 
 
