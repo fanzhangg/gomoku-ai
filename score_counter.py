@@ -1,3 +1,7 @@
+from classes import Board
+import numpy as np
+
+
 def split_row_by_oppo(row: list, id: int, oppo: int):
     """
     Split row by oppo or 00+
@@ -131,7 +135,7 @@ def parse_frag(frag: list, id: int):
                 pass
 
 
-def parse_row(row: [int], id: int, oppo: int)->int:
+def eval_row(row: [int], id: int, oppo: int)->int:
     """
     Parse a list of stones on a row to a list of chain on the row
     :param row: a list of stones on a row
@@ -179,7 +183,31 @@ scores_dict = {
 #     return total_score
 
 
+def eval_board(board: Board, id: int, oppo: int):
+    """
+    :param board:
+    :param id:
+    :param oppo:
+    :return: The total score of the board
+    """
+    total_score = 0
+    for row in board.board:
+        col_score = eval_row(row, id, oppo)
+        oppo_row_score = eval_row(row, oppo, id)
+        total_score = total_score + col_score - oppo_row_score
+
+    for j in range(board.cols):
+        col = board.board[ : , j]
+
+        col_score = eval_row(col, id, oppo)
+        oppo_row_score = eval_row(col, oppo, id)
+        total_score = total_score + col_score - oppo_row_score
+
+    return total_score
+
+
 # test_row = [1, 0, 1, 0, 1, 1, 0, 1, 2, 2, 1, 0, 1, 1, 0, 0, 1, 2]
+test_board = Board(5, 5)
 test_row = [2, 0, 1, 1, 0, 1, 0, 0, 2]
-score = parse_row(test_row, 1, 2)
+score = eval_row(test_row, 1, 2)
 print(score)
