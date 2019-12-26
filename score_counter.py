@@ -135,6 +135,24 @@ def parse_frag(frag: list, id: int):
                 pass
 
 
+def eval_solid_chain(chain: [int], id: int, oppo: int)->int:
+    is_alive = True
+    length = 0
+
+    for x in chain:
+        if x == oppo:
+            is_alive = False
+        elif x == id:
+            length += 1
+    if length > 5:
+        return 10000000000000
+
+    if length < 1:
+        return 0
+
+    return scores_dict[length][is_alive]
+
+
 def eval_row(row: [int], id: int, oppo: int)->int:
     """
     Parse a list of stones on a row to a list of chain on the row
@@ -148,12 +166,8 @@ def eval_row(row: [int], id: int, oppo: int)->int:
 
     for row in new_rows:
         if 0 not in row:    # The frag does not have 0 gap
-            chains_by_single_0 = split_by_single_0(row, id, oppo)
-            for chain in chains_by_single_0:
-                chain_score = scores_dict[chain.length][chain.is_alive]
-                total_score += chain_score
-                # print(f"chain: {chain}")
-                # print(f"player: {id}, total score: {total_score}, chain score: {chain_score}")
+            chain_score = eval_solid_chain(row, id, oppo)
+            total_score += chain_score
             continue
 
         chains_by_single_0 = split_by_single_0(row, id, oppo)
@@ -161,9 +175,7 @@ def eval_row(row: [int], id: int, oppo: int)->int:
         chains_in_frag = combine_tokens(chains_by_single_0)
         for chain in chains_in_frag:    # The frag has 0 gaps
             chain_score = scores_dict[chain.length][chain.is_alive]
-            # print(f"chain: {chain}")
-            # print(f"player: {id}, total score: {total_score}, chain score: {chain_score}")
-            total_score += chain_score
+            total_score += chain_score / 10     # regress to a previous case
         # chains.extend(chains_in_frag)
     return total_score
 
@@ -173,7 +185,8 @@ scores_dict = {
     2: {False: 10, True: 100},
     3: {False: 100, True: 1000},
     4: {False: 1000, True: 10000},
-    5: {False: 100000, True: 100000}
+    5: {False: 100000, True: 100000},
+    6: {False: 100000, True: 100000}
 }
 
 
@@ -226,7 +239,7 @@ test_board = np.array([
     [0, 2, 0, 1, 0],
     [2, 0, 0, 0, 1]
 ])
-test_row = [0, 1, 1, 0]
-score = eval_board(test_board, 1, 2)
-# score = eval_row(test_row, 1, 2)
+test_row = [0, 1, 1, 1, 1, 0]
+# score = eval_board(test_board, 1, 2)
+score = eval_row(test_row, 1, 2)
 print(score)
