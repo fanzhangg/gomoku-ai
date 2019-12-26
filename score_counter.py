@@ -86,7 +86,7 @@ def split_by_single_0(chain, id: int, oppo: int):
         if num == id:
             new_chain.li.append(num)
 
-        if num == 0 or i == len(chain) - 1:
+        if (num == 0 or i == len(chain) - 1) and not new_chain.li == []:
             new_chain.length = len(new_chain.li)
             chains.append(new_chain)
             new_chain = Chain(True, 0, [])
@@ -131,7 +131,7 @@ def parse_frag(frag: list, id: int):
                 pass
 
 
-def parse_row(row: [int], id: int, oppo: int):
+def parse_row(row: [int], id: int, oppo: int)->int:
     """
     Parse a list of stones on a row to a list of chain on the row
     :param row: a list of stones on a row
@@ -140,20 +140,25 @@ def parse_row(row: [int], id: int, oppo: int):
     frags = split_row_by_oppo(row, 1, 2)
     new_rows = split_row_by_multi_0(frags)
 
-    chains = []
+    total_score = 0
 
     for row in new_rows:
-        if 0 not in row:
+        if 0 not in row:    # The frag does not have 0 gap
             chains_by_single_0 = split_by_single_0(row, 1, 2)
-            chains.extend(chains_by_single_0)
+            for chain in chains_by_single_0:
+                chain_score = scores_dict[chain.length][chain.is_alive]
+                total_score += chain_score
             continue
 
         chains_by_single_0 = split_by_single_0(row, 1, 2)
 
         chains_in_frag = combine_tokens(chains_by_single_0)
-        chains.extend(chains_in_frag)
+        for chain in chains_in_frag:    # The frag has 0 gaps
+            chain_score = scores_dict[chain.length][chain.is_alive]
+            total_score += chain_score
+        # chains.extend(chains_in_frag)
 
-    return chains
+    return total_score
 
 
 scores_dict = {
@@ -165,16 +170,16 @@ scores_dict = {
 }
 
 
-def eval_row(row: [int], id: int, oppo: int):
-    total_score = 0
-    chains = parse_row(row, id, oppo)
-    for chain in chains:
-        chain_score = scores_dict[chain.length][chain.is_alive]
-        total_score += chain_score
-    return total_score
+# def eval_row(row: [int], id: int, oppo: int):
+#     total_score = 0
+#     chains = parse_row(row, id, oppo)
+#     for chain in chains:
+#         chain_score = scores_dict[chain.length][chain.is_alive]
+#         total_score += chain_score
+#     return total_score
 
 
 # test_row = [1, 0, 1, 0, 1, 1, 0, 1, 2, 2, 1, 0, 1, 1, 0, 0, 1, 2]
-test_row = [2, 0, 2, 1, 1, 2, 0, 0, 0, 2]
-score = eval_row(test_row, 1, 2)
+test_row = [2, 0, 1, 1, 0, 1, 0, 0, 2]
+score = parse_row(test_row, 1, 2)
 print(score)
