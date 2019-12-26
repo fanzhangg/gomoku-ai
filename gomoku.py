@@ -1,5 +1,7 @@
 import copy
 from classes import Board
+import random
+from score_counter import eval_row
 
 
 class MoveTree:
@@ -8,34 +10,34 @@ class MoveTree:
         self.move = move
         self.score = None
         self.is_turn = is_turn
-        self.alpha = -1
-        self.beta = 100000
+        # self.alpha = -1
+        # self.beta = 100000
         self.parent = None
         self.children = []
 
     def add_child(self, child) -> None:
         child.parent = self
-        if self.is_turn:
-            for kid in self.children:
-                if kid.score > child.alpha:
-                    child.alpha = kid.score
-        else:
-            for kid in self.children:
-                if kid.score > child.beta:
-                    child.beta = kid.score
+        # if self.is_turn:
+        #     for kid in self.children:
+        #         if kid.score > child.alpha:
+        #             child.alpha = kid.score
+        # else:
+        #     for kid in self.children:
+        #         if kid.score > child.beta:
+        #             child.beta = kid.score
 
         self.children.append(child)
 
     def set_score(self, score: int) -> None:
         self.score = score
-        if self.parent:
-            if self.is_turn:
-                self.parent.alpha = score
-            else:
-                self.parent.beta = score
+        # if self.parent:
+        #     if self.parent.is_turn and self.parent.alpha < score:
+        #         self.parent.alpha = score
+        #     elif not self.parent.is_turn and self.parent.beta > score:
+        #         self.parent.beta = score
 
-    def is_valid(self) -> bool:
-        return self.beta > self.alpha
+    # def is_valid(self) -> bool:
+    #     return self.beta >= self.alpha
 
     def get_num_leafs(self, tree):
         if tree.children == []:
@@ -197,98 +199,13 @@ class PlayerLV:
                 return move_dic[-3]
         return moves
 
-    def evaluate_score(self, cur_row: str, move_idx: int) -> int:
-        ptn_5_id = str(self.id) * 5
-        ptn_040_id = '0' + str(self.id) * 4 + '0'
-        ptn_303_id= str(self.id) * 3 + '0' + str(self.id) * 3
-        ptn_10301_id = str(self.id) + '0' + str(self.id) * 3 + '0' + str(self.id)
-        ptn_20202_id = str(self.id) * 2 + '0' + str(self.id) * 2 + '0' + str(self.id) * 2
 
-        ptn_041_id = '0' + str(self.id) * 4 + str(self.opp)
-        ptn_140_id = str(self.opp) + str(self.id) * 4 + '0'
-        ptn_301_id = str(self.id) * 3 + '0' + str(self.id)
-        ptn_103_id = str(self.id) + '0' + str(self.id) * 3
-        ptn_202_id = str(self.id) * 2 + '0' + str(self.id) * 2
-        ptn_40_id = '3' + str(self.id) * 4 + '0'
-        ptn_04_id = '0' + str(self.id) * 4 + '3'
+    def calculate_score(self, tree, id: int, steps: int) -> None:
+        # if not tree.is_valid():
+        #     print("haha")
+        #     return None
 
-        ptn_030_id = '0' + str(self.id) * 3 + '0'
-        ptn_02010_id = '0' + str(self.id) * 2 + '0' + str(self.id) + '0'
-        ptn_01020_id = '0' + str(self.id) + '0' + str(self.id) * 2 + '0'
-
-        ptn_021_opp = '0' + str(self.opp) * 2 + str(self.id)
-        ptn_120_opp = str(self.id) + str(self.opp) * 2 + '0'
-
-        # ptn_01010_opp, ptn_01010_id
-
-        ptn_130_opp = str(self.id) + str(self.opp) * 3 + '0'
-        ptn_031_opp = '0' + str(self.opp) * 3 + str(self.id)
-        ptn_02110_opp = '0' + str(self.opp) * 2 + str(self.id) + str(self.opp) + '0'
-        ptn_01120_opp = '0' + str(self.opp) + str(self.id) + str(self.opp) * 2 + '0'
-        ptn_12010_opp = str(self.id) + str(self.opp) * 2 + '0' + str(self.opp) + '0'
-        ptn_02011_opp = '0' + str(self.opp) * 2 + '0' + str(self.opp) + str(self.id)
-        ptn_01021_opp = '0' + str(self.opp) + '0' + str(self.opp) * 2 + str(self.id)
-        ptn_11020_opp = str(self.id) + str(self.opp) + '0' + str(self.opp) * 2 + '0'
-
-        ptn_020_id = '0' + str(self.id) * 2 + '0'
-
-        ptn_130_id = str(self.opp) + str(self.id) * 3 + '0'
-        ptn_031_id = '0' + str(self.id) * 3 + str(self.opp)
-
-        ptn_03_id = '0' + str(self.id) * 3 + '3'
-        ptn_30_id = '3' + str(self.id) * 3 + '0'
-        ptn_0201_id = '0' + str(self.id) * 2 + '0' + str(self.id) + '3'
-        ptn_2010_id = '3' + str(self.id) * 2 + '0' + str(self.id) + '0'
-        ptn_0102_id = '0' + str(self.id) + '0' + str(self.id) * 2 + '3'
-        ptn_1020_id = '3' + str(self.id) + '0' + str(self.id) * 2 + '0'
-
-        ptn_110_opp = str(self.id) + str(self.opp) + '0'
-        ptn_011_opp = '0' + str(self.opp) + str(self.id)
-
-        score = 0
-        cur_row_7 = cur_row[max(move_idx - 7, 0): min(move_idx + 8, len(cur_row))]
-        cur_row_6 = cur_row[max(move_idx - 6, 0): min(move_idx + 7, len(cur_row))]
-        cur_row_5 = cur_row[max(move_idx - 5, 0): min(move_idx + 6, len(cur_row))]
-        cur_row_4 = cur_row[max(move_idx - 4, 0): min(move_idx + 5, len(cur_row))]
-        cur_row_3 = cur_row[max(move_idx - 3, 0): min(move_idx + 4, len(cur_row))]
-        cur_row_2 = cur_row[max(move_idx - 2, 0): min(move_idx + 3, len(cur_row))]
-
-        if ptn_5_id in cur_row_4 or ptn_040_id in cur_row_4 or ptn_303_id in cur_row_6 or ptn_10301_id in cur_row_6 or ptn_20202_id in cur_row_7:
-            score += 1000
-
-        elif ptn_030_id in cur_row_3:
-            score += 10
-
-        elif ptn_02010_id in cur_row_4 or ptn_01020_id in cur_row_4:
-            score += 9
-
-        elif ptn_041_id in cur_row_4 or ptn_140_id in cur_row_4 or ptn_301_id in cur_row_4 or ptn_103_id in cur_row_4 or ptn_202_id in cur_row_4 or ptn_40_id in cur_row_4 or ptn_04_id in cur_row_4:
-            score += 8
-        
-        elif ptn_130_opp in cur_row_4 or ptn_031_opp in cur_row_4 or ptn_02110_opp in cur_row_3 or ptn_01120_opp in cur_row_3:
-            score += 5
-        elif ptn_12010_opp in cur_row_5 or ptn_01021_opp in cur_row_5 or ptn_02011_opp in cur_row_5 or ptn_11020_opp in cur_row_5:
-            score += 4
-
-        elif ptn_021_opp in cur_row_3 or ptn_120_opp in cur_row_3:
-            score += 5
-        elif ptn_020_id in cur_row_2:
-            score += 4
-        elif ptn_130_id in cur_row_3 or ptn_031_id in cur_row_3:
-            score += 3
-        elif ptn_03_id in cur_row_3 or ptn_30_id in cur_row_3 or ptn_0201_id in cur_row_3 or ptn_2010_id in cur_row_3 or ptn_0102_id in cur_row_3 or ptn_1020_id in cur_row_3:
-            score += 1
-        elif ptn_011_opp in cur_row_2 or ptn_110_opp in cur_row_2:
-            score += 1
-
-        return score
-
-    def calculate_score(self, tree, board: list, id: int, steps: int) -> None:
-        if not tree.is_valid():
-            print("haha")
-            return None
-
-        moves = self.get_moves(board, id)
+        moves = self.get_moves(tree.board, id)
         # print("moves: " + str(moves))
         # if len(moves) > 10:
         #     moves = moves[:8]
@@ -297,23 +214,23 @@ class PlayerLV:
             row_lis = self.extend_in_four_directions(tree.board, tree.move)
             score = 0
             for cur_row in row_lis:
-                score += self.evaluate_score(cur_row[0], cur_row[1].index(tree.move))
+                score += eval_row(cur_row[0], self.id, 3 - self.id) - eval_row(cur_row[0], 3 - self.id, self.id)
             tree.set_score(score)
             # print("Steps and Score -- " + str(steps) + ": " + str(score))
             return None
 
         for move in moves:
-            next_board = copy.deepcopy(board)
+            next_board = copy.deepcopy(tree.board)
             next_board[move[0]][move[1]] = id
             next_tree = MoveTree(next_board, move, id == self.id)
             tree.add_child(next_tree)
 
-            self.calculate_score(next_tree, next_board, 3 - id, steps - 1)
+            self.calculate_score(next_tree, 3 - id, steps - 1)
 
         if tree.is_turn:
-            tree.set_score(tree.beta)
+            tree.set_score(max(child.score for child in tree.children))
         else:
-            tree.set_score(tree.alpha)
+            tree.set_score(min(child.score for child in tree.children))
         final_score = tree.score
         print("final score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(final_score))
 
@@ -327,21 +244,25 @@ class PlayerLV:
 
         move_tree = MoveTree(board.board, board.last_move, False)
 
-        self.calculate_score(move_tree, board.board, self.id, 2)
+        self.calculate_score(move_tree, self.id, 2)
 
         print("num_of_leafs: " + str(move_tree.get_num_leafs(move_tree)))
 
         max_score = -1
-        max_child = None
+        max_children = []
         for child in move_tree.children:
 
-            print("Then: " + str(child.move) + ", " + str(child.score))
+            # print("Then: " + str(child.move) + ", " + str(child.score))
 
-            if child.score is not None and child.score > max_score:
-                max_child = child
-                max_score = child.score
+            if child.score is not None:
+                if child.score > max_score:
+                    max_children = [child]
+                    max_score = child.score
+                elif child.score == max_score:
+                    max_children.append(child)
         
-        return max_child.move
+        # Should be random
+        return random.choice(max_children).move
 
 
 
