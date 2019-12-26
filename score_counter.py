@@ -41,7 +41,7 @@ def split_row_by_oppo(row: list, id: int, oppo: int):
     # return frags
 
 
-def split_row_by_multi_0(frags):
+def split_row_by_multi_0(frags, id: int, oppo: int):
     """
     Split the row by 00+
     :param frags: a list of fragment in the row, each fragment is a list of number representing the stone in the grid
@@ -54,7 +54,7 @@ def split_row_by_multi_0(frags):
         is_chain = False
 
         if not row[0] == 0:
-            li = [2]
+            li = [oppo]
 
         for i in range(len(row)):
             num = row[i]
@@ -71,7 +71,7 @@ def split_row_by_multi_0(frags):
             elif i == len(row) - 1:
                 if not num == 0:
                     li.append(num)
-                    li.append(2)
+                    li.append(oppo)
                 sub_chains.append(li)
             else:
                 li.append(num)
@@ -155,7 +155,7 @@ def eval_row(row: [int], id: int, oppo: int)->int:
     :return: a list of chain on the row, each chain is a Chain object, storing its length and if it is blocked
     """
     frags = split_row_by_oppo(row, id, oppo)
-    new_rows = split_row_by_multi_0(frags)
+    new_rows = split_row_by_multi_0(frags, id, oppo)
 
     total_score = 0
 
@@ -240,13 +240,13 @@ def eval_board(board, id: int, oppo: int):
 
 # test_row = [1, 0, 1, 0, 1, 1, 0, 1, 2, 2, 1, 0, 1, 1, 0, 0, 1, 2]
 test_board = np.array([
-    [1, 1, 1, 1, 0],
-    [0, 2, 2, 2, 0],
+    [0, 0, 0, 0, 0],
+    [0, 0, 0, 2, 0],
     [0, 0, 2, 0, 0],
-    [0, 2, 0, 1, 0],
-    [0, 0, 0, 0, 1]
+    [0, 2, 0, 0, 0],
+    [0, 0, 0, 0, 0]
 ])
-test_row = [0, 1, 1, 1, 2, 1, 0]
-score = eval_board(test_board, 1, 2)
-# score = eval_row(test_row, 1, 2)
+test_row = [0, 2, 2, 2, 2, 1]
+# score = eval_board(test_board, 1, 2)
+score = eval_row(test_row, 2, 1)
 print(score)
