@@ -2,16 +2,16 @@ import copy
 from classes import Board
 import random
 from score_counter import eval_board
+import math
 
 
 class MoveTree:
-    def __init__(self, board, move: tuple, is_turn: bool) -> None:
-        self.board = board
+    def __init__(self, move: tuple, is_turn: bool) -> None:
         self.move = move
         self.score = None
         self.is_turn = is_turn
-        # self.alpha = -1
-        # self.beta = 100000
+        # self.alpha = -math.inf
+        # self.beta = math.inf
         self.parent = None
         self.children = []
 
@@ -61,14 +61,12 @@ class PlayerLV:
         j = move[1]
 
         cur_row = '3'
-        idx_row = [(len(board), len(board))]
         for k in range(len(board)):
             cur_row += str(board[i][k])
         cur_row += '3'
         lis.append(cur_row)
 
         cur_col = '3'
-        idx_col = [(len(board), len(board))]
         for k in range(len(board)):
             cur_col += str(board[k][j])
         cur_col += '3'
@@ -126,10 +124,15 @@ class PlayerLV:
 
         return -1
     
-    def get_moves(self, board: list, id: int) -> list:
+    def get_moves(self, board, id: int) -> list:
         moves = []
         move_dic = {}
         opp = 3 - id
+
+        # twos = np.full((board.rows,), 2, dtype=int)
+        # twos_plus = np.full((board.rows+2,), 2, dtype=int)
+        # extended_board = np.concatenate((twos, board, twos), axis=1)
+        # extended_board = np.concatenate((twos_plus, extended_board, twos_plus), axis=0)
 
         extended_board = [[0 for i in range(len(board) + 4)] for j in range(len(board) + 4)]
         for a in range(len(board)):
@@ -145,74 +148,74 @@ class PlayerLV:
                     surround_2 = [extended_board[i-2+2][j-2+2], extended_board[i-2+2][j+2], extended_board[i-2+2][j+2+2], 
                                   extended_board[i+2][j-2+2], extended_board[i+2][j+2+2], 
                                   extended_board[i+2+2][j-2+2], extended_board[i+2+2][j+2], extended_board[i+2+2][j+2+2]]
-                    original_rows = self.extend_in_four_directions(board, (i, j))
-                    if any(surround_1) or id in surround_2:
-                        new_board = copy.deepcopy(board)
-                        new_board[i][j] = self.id
-                        next_row = self.extend_in_four_directions(new_board, (i, j))
+        #             original_rows = self.extend_in_four_directions(board, (i, j))
+        #             if any(surround_1) or id in surround_2:
+        #                 new_board = copy.deepcopy(board)
+        #                 new_board[i][j] = self.id
+        #                 next_row = self.extend_in_four_directions(new_board, (i, j))
 
-                        for k in range(4):
-                            sign = self.win_move(next_row[k], original_rows[k], self.id)
-                            if sign != -1:
-                                if sign in move_dic:
-                                    move_dic[sign].append((i, j))
-                                else:
-                                    move_dic[sign] = [(i, j)]
+        #                 for k in range(4):
+        #                     sign = self.win_move(next_row[k], original_rows[k], self.id)
+        #                     if sign != -1:
+        #                         if sign in move_dic:
+        #                             move_dic[sign].append((i, j))
+        #                         else:
+        #                             move_dic[sign] = [(i, j)]
                         
+        #                 moves.append((i, j))
+
+        #             if any(surround_1) or opp in surround_2:
+        #                 new_board = copy.deepcopy(board)
+        #                 new_board[i][j] = self.opp
+        #                 next_row = self.extend_in_four_directions(new_board, (i, j))
+
+        #                 for k in range(4):
+        #                     sign = self.win_move(next_row[k], original_rows[k], self.opp)
+        #                     if sign != -1:
+        #                         if sign in move_dic:
+        #                             move_dic[sign].append((i, j))
+        #                         else:
+        #                             move_dic[sign] = [(i, j)]
+
+        # if 10 in move_dic:
+        #     return []
+        # elif -4 in move_dic:
+        #     return move_dic[-4][:1]
+        # elif 5 in move_dic:
+        #     return move_dic[5][:1]
+        # elif -3 in move_dic:
+        #     if 4 in move_dic:
+        #         return move_dic[4] + move_dic[-3]
+        #     else:
+        #         return move_dic[-3]
+
+                    if any(surround_1) or id in surround_2:
                         moves.append((i, j))
 
-                    if any(surround_1) or opp in surround_2:
-                        new_board = copy.deepcopy(board)
-                        new_board[i][j] = self.opp
-                        next_row = self.extend_in_four_directions(new_board, (i, j))
-
-                        for k in range(4):
-                            sign = self.win_move(next_row[k], original_rows[k], self.opp)
-                            if sign != -1:
-                                if sign in move_dic:
-                                    move_dic[sign].append((i, j))
-                                else:
-                                    move_dic[sign] = [(i, j)]
-
-        # print("move_dic: " + str(move_dic))
-
-        if 10 in move_dic:
-            return []
-        elif -4 in move_dic:
-            return move_dic[-4][:1]
-        elif 5 in move_dic:
-            return move_dic[5][:1]
-        elif -3 in move_dic:
-            if 4 in move_dic:
-                return move_dic[4] + move_dic[-3]
-            else:
-                return move_dic[-3]
         return moves
 
 
-    def build_tree(self, tree, id: int, steps: int) -> None:
+    def build_tree(self, tree, board, id: int, steps: int) -> None:
         # if not tree.is_valid():
         #     print("haha")
         #     return None
 
-        moves = self.get_moves(tree.board, id)
-        # print("moves: " + str(moves))
-        # if len(moves) > 10:
-        #     moves = moves[:8]
+        moves = self.get_moves(board, id)
 
-        if (len(moves) > 3 and steps <= 0) or len(moves) == 0:
-            score = eval_board(tree.board, self.id, self.opp)
+        # if (len(moves) > 3 and steps <= 0) or len(moves) == 0:
+        if steps <= 0 or len(moves) == 0:
+            score = eval_board(board, self.id, self.opp)
             tree.set_score(score)
             # print("Steps and Score -- " + str(steps) + ": " + str(score))
             return None
 
         for move in moves:
-            next_board = copy.deepcopy(tree.board)
+            next_board = copy.deepcopy(board)
             next_board[move[0]][move[1]] = id
-            next_tree = MoveTree(next_board, move, id == self.id)
+            next_tree = MoveTree(move, id == self.id)
             tree.add_child(next_tree)
 
-            self.build_tree(next_tree, 3 - id, steps - 1)
+            self.build_tree(next_tree, next_board, 3-id, steps-1)
 
         if tree.is_turn:
             tree.set_score(max(child.score for child in tree.children))
@@ -224,20 +227,22 @@ class PlayerLV:
 
     def move(self, board: Board) -> tuple:
         moves = self.get_moves(board.board, self.id)
+        # print(moves)
         if len(moves) == 1:
             return moves[0]
         elif len(moves) == 0:
             return (7, 7)
 
-        move_tree = MoveTree(board.board, board.last_move, False)
+        move_tree = MoveTree(board.last_move, False)
 
-        self.build_tree(move_tree, self.id, 2)
+        # board_copy = copy.deepcopy(board.board)
+        self.build_tree(move_tree, board.board, self.id, 2)
 
         print("num_of_leafs: " + str(move_tree.get_num_leafs(move_tree)))
 
-        max_score = -1
-        max_children = []
-        for child in move_tree.children:
+        max_score = move_tree.children[0].score
+        max_children = [move_tree.children[0]]
+        for child in move_tree.children[1:]:
 
             # print("Then: " + str(child.move) + ", " + str(child.score))
 
