@@ -3,6 +3,7 @@ from classes import Board
 import random
 from score_counter import eval_board
 import math
+import numpy as np
 
 
 class MoveTree:
@@ -126,28 +127,36 @@ class PlayerLV:
     
     def get_moves(self, board, id: int) -> list:
         moves = []
-        move_dic = {}
-        opp = 3 - id
+        # move_dic = {}
+        # opp = 3 - id
+        num_rows = len(board)
 
-        # twos = np.full((board.rows,), 2, dtype=int)
-        # twos_plus = np.full((board.rows+2,), 2, dtype=int)
-        # extended_board = np.concatenate((twos, board, twos), axis=1)
-        # extended_board = np.concatenate((twos_plus, extended_board, twos_plus), axis=0)
+        twos = np.full((2,num_rows), 0, dtype=int)
+        twos_plus = np.full((num_rows+2,2), 0, dtype=int)
+        extended_board = np.concatenate((board, twos), axis=0)
+        extended_board = np.concatenate((extended_board, twos_plus), axis=1)
 
-        extended_board = [[0 for i in range(len(board) + 4)] for j in range(len(board) + 4)]
-        for a in range(len(board)):
-            for b in range(len(board)):
-                extended_board[a+2][b+2] = board[a][b]
+        # extended_board = [[0 for i in range(len(board) + 4)] for j in range(len(board) + 4)]
+        # for a in range(len(board)):
+        #     for b in range(len(board)):
+        #         extended_board[a+2][b+2] = board[a][b]
 
-        for i in range(len(board)):
-            for j in range(len(board)):
+        for i in range(num_rows):
+            for j in range(num_rows):
                 if board[i][j] == 0:
-                    surround_1 = [extended_board[i-1+2][j-1+2], extended_board[i-1+2][j+2], extended_board[i-1+2][j+1+2], 
-                                  extended_board[i+2][j-1+2], extended_board[i+2][j+1+2], 
-                                  extended_board[i+1+2][j-1+2], extended_board[i+1+2][j+2], extended_board[i+1+2][j+1+2]]
-                    surround_2 = [extended_board[i-2+2][j-2+2], extended_board[i-2+2][j+2], extended_board[i-2+2][j+2+2], 
-                                  extended_board[i+2][j-2+2], extended_board[i+2][j+2+2], 
-                                  extended_board[i+2+2][j-2+2], extended_board[i+2+2][j+2], extended_board[i+2+2][j+2+2]]
+                    surround_1 = [extended_board[i-1][j-1], extended_board[i-1][j], extended_board[i-1][j+1], 
+                                  extended_board[i][j-1], extended_board[i][j+1], 
+                                  extended_board[i+1][j-1], extended_board[i+1][j], extended_board[i+1][j+1]]
+                    surround_2 = [extended_board[i-2][j-2], extended_board[i-2][j], extended_board[i-2][j+2], 
+                                  extended_board[i][j-2], extended_board[i][j+2], 
+                                  extended_board[i+2][j-2], extended_board[i+2][j], extended_board[i+2][j+2]]
+
+                    # surround_1 = [extended_board[i-1+2][j-1+2], extended_board[i-1+2][j+2], extended_board[i-1+2][j+1+2], 
+                    #               extended_board[i+2][j-1+2], extended_board[i+2][j+1+2], 
+                    #               extended_board[i+1+2][j-1+2], extended_board[i+1+2][j+2], extended_board[i+1+2][j+1+2]]
+                    # surround_2 = [extended_board[i-2+2][j-2+2], extended_board[i-2+2][j+2], extended_board[i-2+2][j+2+2], 
+                    #               extended_board[i+2][j-2+2], extended_board[i+2][j+2+2], 
+                    #               extended_board[i+2+2][j-2+2], extended_board[i+2+2][j+2], extended_board[i+2+2][j+2+2]]
         #             original_rows = self.extend_in_four_directions(board, (i, j))
         #             if any(surround_1) or id in surround_2:
         #                 new_board = copy.deepcopy(board)
@@ -231,11 +240,10 @@ class PlayerLV:
         if len(moves) == 1:
             return moves[0]
         elif len(moves) == 0:
-            return (7, 7)
+            return (board.rows//2, board.rows//2)
 
         move_tree = MoveTree(board.last_move, False)
 
-        # board_copy = copy.deepcopy(board.board)
         self.build_tree(move_tree, board.board, self.id, 2)
 
         print("num_of_leafs: " + str(move_tree.get_num_leafs(move_tree)))
