@@ -135,38 +135,52 @@ def parse_frag(frag: list, id: int):
                 pass
 
 
+def eval_solid_chain(chain: [int], id: int, oppo: int)->int:
+    is_alive = True
+    length = 0
+
+    for x in chain:
+        if x == oppo:
+            is_alive = False
+        elif x == id:
+            length += 1
+
+    return get_score(length, is_alive)
+
+
 def eval_row(row: [int], id: int, oppo: int)->int:
     """
     Parse a list of stones on a row to a list of chain on the row
     :param row: a list of stones on a row
     :return: a list of chain on the row, each chain is a Chain object, storing its length and if it is blocked
     """
-    frags = split_row_by_oppo(row, 1, 2)
+    frags = split_row_by_oppo(row, id, oppo)
     new_rows = split_row_by_multi_0(frags)
 
     total_score = 0
 
     for row in new_rows:
         if 0 not in row:    # The frag does not have 0 gap
-            chains_by_single_0 = split_by_single_0(row, id, oppo)
-            for chain in chains_by_single_0:
-                chain_score = scores_dict[chain.length][chain.is_alive]
-                total_score += chain_score
-                print(f"chain: {chain}")
-                print(f"total score: {total_score}, chain score: {chain_score}")
+            chain_score = eval_solid_chain(row, id, oppo)
+            total_score += chain_score
             continue
 
         chains_by_single_0 = split_by_single_0(row, id, oppo)
 
         chains_in_frag = combine_tokens(chains_by_single_0)
         for chain in chains_in_frag:    # The frag has 0 gaps
-            chain_score = scores_dict[chain.length][chain.is_alive]
-            print(f"chain: {chain}")
-            print(f"total score: {total_score}, chain score: {chain_score}")
-            total_score += chain_score
+            chain_score = get_score(chain.length, chain.is_alive)
+            total_score += chain_score / 10     # regress to a previous case
         # chains.extend(chains_in_frag)
-
     return total_score
+
+
+def get_score(length: int, is_alive: bool)->int:
+    if length > 5:
+        return 100000
+    if length < 1:
+        return 0
+    return scores_dict[length][is_alive]
 
 
 scores_dict = {
@@ -200,14 +214,17 @@ def eval_board(board, id: int, oppo: int):
     for row in board:
         row_score = eval_row(row, id, oppo)
         oppo_row_score = eval_row(row, oppo, id)
+        print(f"oppo row score: {oppo_row_score}")
         total_score = total_score + row_score - oppo_row_score
 
     for j in range(num_rows):
         col = board[:, j]
 
         col_score = eval_row(col, id, oppo)
-        oppo_row_score = eval_row(col, oppo, id)
-        total_score = total_score + col_score - oppo_row_score
+        oppo_col_score = eval_row(col, oppo, id)
+        total_score = total_score + col_score - oppo_col_score
+
+        print(f"oppo col score: {oppo_col_score}")
 
     diags = [board[::-1,:].diagonal(i) for i in range(-num_rows+1, num_rows)]
     diags.extend(board.diagonal(i) for i in range(num_rows-1, -num_rows, -1))
@@ -216,16 +233,20 @@ def eval_board(board, id: int, oppo: int):
         oppo_diag_score = eval_row(diag, oppo, id)
         total_score = total_score + diag_score - oppo_diag_score
 
+        print(f"oppo diag score: {oppo_diag_score}")
+
     return total_score
 
 
 # test_row = [1, 0, 1, 0, 1, 1, 0, 1, 2, 2, 1, 0, 1, 1, 0, 0, 1, 2]
 test_board = np.array([
-    [1, 1, 1, 0],
-    [0, 0, 0, 0],
-    [0, 1, 0, 0],
-    [0, 0, 0, 0]
+    [1, 1, 1, 1, 0],
+    [0, 2, 2, 2, 0],
+    [0, 0, 2, 0, 0],
+    [0, 2, 0, 1, 0],
+    [0, 0, 0, 0, 1]
 ])
-test_row = [2, 0, 1, 1, 0, 1, 0, 0, 2]
+test_row = [0, 1, 1, 1, 2, 1, 0]
 score = eval_board(test_board, 1, 2)
+# score = eval_row(test_row, 1, 2)
 print(score)
