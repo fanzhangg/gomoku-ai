@@ -148,13 +148,13 @@ def eval_row(row: [int], id: int, oppo: int)->int:
 
     for row in new_rows:
         if 0 not in row:    # The frag does not have 0 gap
-            chains_by_single_0 = split_by_single_0(row, 1, 2)
+            chains_by_single_0 = split_by_single_0(row, id, oppo)
             for chain in chains_by_single_0:
                 chain_score = scores_dict[chain.length][chain.is_alive]
                 total_score += chain_score
             continue
 
-        chains_by_single_0 = split_by_single_0(row, 1, 2)
+        chains_by_single_0 = split_by_single_0(row, id, oppo)
 
         chains_in_frag = combine_tokens(chains_by_single_0)
         for chain in chains_in_frag:    # The frag has 0 gaps
