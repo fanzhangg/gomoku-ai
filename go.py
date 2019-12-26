@@ -116,7 +116,7 @@ class Game:
 
     """
     check whether the player wins the game when put a stone at the coord
-    id: 1 for black stone, 2 for white stone
+    opponent: 1 for black stone, 2 for white stone
     coord: (row, col)
     return: true if wins, else false
     """
