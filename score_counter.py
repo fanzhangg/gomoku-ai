@@ -192,9 +192,9 @@ def eval_board(board: Board, id: int, oppo: int):
     """
     total_score = 0
     for row in board.board:
-        col_score = eval_row(row, id, oppo)
+        row_score = eval_row(row, id, oppo)
         oppo_row_score = eval_row(row, oppo, id)
-        total_score = total_score + col_score - oppo_row_score
+        total_score = total_score + row_score - oppo_row_score
 
     for j in range(board.cols):
         col = board.board[ : , j]
