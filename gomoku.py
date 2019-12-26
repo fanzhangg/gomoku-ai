@@ -209,16 +209,14 @@ class PlayerLV:
         #     print("haha")
         #     return None
 
-        moves = self.get_moves(board, id)
-
         # if (len(moves) > 3 and steps <= 0) or len(moves) == 0:
-        if steps <= 0 or len(moves) == 0:
+        if steps == 0:
             score = eval_board(board, self.id, self.opp)
             tree.set_score(score)
             # print("Steps and Score -- " + str(steps) + ": " + str(score))
             return None
 
-        for move in moves:
+        for move in self.get_moves(board, id):
             next_board = copy.deepcopy(board)
             next_board[move[0]][move[1]] = id
             next_tree = MoveTree(move, id == self.id)
@@ -237,12 +235,10 @@ class PlayerLV:
     def move(self, board: Board) -> tuple:
         moves = self.get_moves(board.board, self.id)
         # print(moves)
-        if len(moves) == 1:
-            return moves[0]
-        elif len(moves) == 0:
+        if len(moves) == 0:
             return (board.rows//2, board.rows//2)
 
-        move_tree = MoveTree(board.last_move, False)
+        move_tree = MoveTree(board.last_move, True)
 
         self.build_tree(move_tree, board.board, self.id, 2)
 
