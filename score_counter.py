@@ -171,11 +171,13 @@ def eval_row(row: [int], id: int, oppo: int)->int:
         for chain in chains_in_frag:    # The frag has 0 gaps
             if chain.is_alive and chain.length == 5:    # 0 1 1 0 1 1 1 0
                 total_score += 1000
+            elif chain.is_alive and chain.length == 4:
+                total_score += 1000
             elif not chain.is_alive and chain.length == 4:  # 2 1 1 0 1 1 0
                 total_score += 1000
             else:
                 chain_score = get_score(chain.length, chain.is_alive)
-                total_score += chain_score / 10     # regress to a previous case
+                total_score += chain_score     # regress to a previous case
         # chains.extend(chains_in_frag)
     return total_score
 
@@ -220,14 +222,14 @@ def eval_board(board, id: int, oppo: int):
         row_score = eval_row(row, id, oppo)
         oppo_row_score = eval_row(row, oppo, id)
         # print(f"oppo row score: {oppo_row_score}")
-        total_score = total_score + row_score - oppo_row_score
+        total_score = total_score + row_score - oppo_row_score * 1.1
 
     for j in range(num_rows):
         col = board[:, j]
 
         col_score = eval_row(col, id, oppo)
         oppo_col_score = eval_row(col, oppo, id)
-        total_score = total_score + col_score - oppo_col_score
+        total_score = total_score + col_score - oppo_col_score * 1.1
 
         # print(f"oppo col score: {oppo_col_score}")
 
@@ -236,7 +238,7 @@ def eval_board(board, id: int, oppo: int):
     for diag in diags:
         diag_score = eval_row(diag, id, oppo)
         oppo_diag_score = eval_row(diag, oppo, id)
-        total_score = total_score + diag_score - oppo_diag_score
+        total_score = total_score + diag_score - oppo_diag_score * 1.1
 
         # print(f"oppo diag score: {oppo_diag_score}")
 
