@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def split_row_by_oppo(row: list, id: int, oppo: int):
     """
     Split row by oppo or 00+
@@ -109,6 +110,24 @@ def combine_tokens(chains):
     return re_chains
 
 
+def find_largest_gap_chain(chains):
+    """
+    Find the largest chain separated by a single 0
+    :param chains: a list of Chain object
+    :return: a Chain object representing the max chain
+    """
+    max_chain = Chain(True, 0, [])
+    for i in range(len(chains) - 1):
+        chain1 = chains[i]
+        chain2 = chains[i + 1]
+        if len(chain1.li) + len(chain2.li) > max_chain.length:
+            is_alive = chain1.is_alive and chain2.is_alive
+            length = len(chain1.li) + len(chain2.li)
+            li = chain1.li + chain2.li
+            max_chain = Chain(is_alive, length, li)
+    return max_chain
+
+
 class Chain:
     def __init__(self, is_alive: bool, len: int, li: list):
         self.is_alive = is_alive
@@ -171,11 +190,13 @@ def eval_row(row: [int], id: int, oppo: int)->int:
         for chain in chains_in_frag:    # The frag has 0 gaps
             if chain.is_alive and chain.length == 5:    # 0 1 1 0 1 1 1 0
                 total_score += 1000
+            elif chain.is_alive and chain.length == 4:
+                total_score += 1000
             elif not chain.is_alive and chain.length == 4:  # 2 1 1 0 1 1 0
                 total_score += 1000
             else:
                 chain_score = get_score(chain.length, chain.is_alive)
-                total_score += chain_score / 10     # regress to a previous case
+                total_score += chain_score     # regress to a previous case
         # chains.extend(chains_in_frag)
     return total_score
 
@@ -220,14 +241,14 @@ def eval_board(board, id: int, oppo: int):
         row_score = eval_row(row, id, oppo)
         oppo_row_score = eval_row(row, oppo, id)
         # print(f"oppo row score: {oppo_row_score}")
-        total_score = total_score + row_score - oppo_row_score
+        total_score = total_score + row_score - oppo_row_score * 1.1
 
     for j in range(num_rows):
         col = board[:, j]
 
         col_score = eval_row(col, id, oppo)
         oppo_col_score = eval_row(col, oppo, id)
-        total_score = total_score + col_score - oppo_col_score
+        total_score = total_score + col_score - oppo_col_score * 1.1
 
         # print(f"oppo col score: {oppo_col_score}")
 
@@ -236,7 +257,7 @@ def eval_board(board, id: int, oppo: int):
     for diag in diags:
         diag_score = eval_row(diag, id, oppo)
         oppo_diag_score = eval_row(diag, oppo, id)
-        total_score = total_score + diag_score - oppo_diag_score
+        total_score = total_score + diag_score - oppo_diag_score * 1.1
 
         # print(f"oppo diag score: {oppo_diag_score}")
 
@@ -252,7 +273,18 @@ test_board = np.array([
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0]
 ])
-# test_row = [0, 1, 2, 0, 2, 2, 1]
+test_row = [1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 2, 0, 2, 2, 1]
 score = eval_board(test_board, 1, 2)
 # score = eval_row(test_row, 2, 1)
 print(score)
+
+
+frags = split_row_by_oppo(test_row, 1, 2)
+new_rows = split_row_by_multi_0(frags, 1, 2)
+
+total_score = 0
+
+for row in new_rows:
+    chains_by_single_0 = split_by_single_0(row, 1, 2)
+    chains = find_largest_gap_chain(chains_by_single_0)
+    print(chains)
