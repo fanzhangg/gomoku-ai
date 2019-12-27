@@ -1,5 +1,6 @@
 import numpy as np
 
+
 def split_row_by_oppo(row: list, id: int, oppo: int):
     """
     Split row by oppo or 00+
@@ -107,6 +108,24 @@ def combine_tokens(chains):
         chain = Chain(is_alive, length, [])
         re_chains.append(chain)
     return re_chains
+
+
+def find_largest_gap_chain(chains):
+    """
+    Find the largest chain separated by a single 0
+    :param chains: a list of Chain object
+    :return: a Chain object representing the max chain
+    """
+    max_chain = Chain(True, 0, [])
+    for i in range(len(chains) - 1):
+        chain1 = chains[i]
+        chain2 = chains[i + 1]
+        if len(chain1.li) + len(chain2.li) > max_chain.length:
+            is_alive = chain1.is_alive and chain2.is_alive
+            length = len(chain1.li) + len(chain2.li)
+            li = chain1.li + chain2.li
+            max_chain = Chain(is_alive, length, li)
+    return max_chain
 
 
 class Chain:
@@ -254,7 +273,18 @@ test_board = np.array([
     [0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0]
 ])
-# test_row = [0, 1, 2, 0, 2, 2, 1]
+test_row = [1, 1, 0, 1, 1, 0, 1, 0, 1, 1, 2, 0, 2, 2, 1]
 score = eval_board(test_board, 1, 2)
 # score = eval_row(test_row, 2, 1)
 print(score)
+
+
+frags = split_row_by_oppo(test_row, 1, 2)
+new_rows = split_row_by_multi_0(frags, 1, 2)
+
+total_score = 0
+
+for row in new_rows:
+    chains_by_single_0 = split_by_single_0(row, 1, 2)
+    chains = find_largest_gap_chain(chains_by_single_0)
+    print(chains)
