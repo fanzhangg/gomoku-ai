@@ -6,39 +6,34 @@ import math
 import numpy as np
 
 
+MAX_STEPS = 4
+
+
 class MoveTree:
     def __init__(self, move: tuple, is_turn: bool) -> None:
         self.move = move
-        self.score = None
-        self.is_turn = is_turn
-        # self.alpha = -math.inf
-        # self.beta = math.inf
+        self.score = -math.inf if is_turn else math.inf
+        self.is_turn = is_turn # whether is AI's turn
+        self.alpha = -math.inf
+        self.beta = math.inf
         self.parent = None
         self.children = []
 
     def add_child(self, child) -> None:
         child.parent = self
-        # if self.is_turn:
-        #     for kid in self.children:
-        #         if kid.score > child.alpha:
-        #             child.alpha = kid.score
-        # else:
-        #     for kid in self.children:
-        #         if kid.score > child.beta:
-        #             child.beta = kid.score
-
         self.children.append(child)
+
+        if self.is_turn:
+            child.alpha = self.alpha
+        else:
+            child.beta = self.beta
 
     def set_score(self, score: int) -> None:
         self.score = score
-        # if self.parent:
-        #     if self.parent.is_turn and self.parent.alpha < score:
-        #         self.parent.alpha = score
-        #     elif not self.parent.is_turn and self.parent.beta > score:
-        #         self.parent.beta = score
-
-    # def is_valid(self) -> bool:
-    #     return self.beta >= self.alpha
+        if self.parent.is_turn and self.parent.alpha < score:
+            self.parent.alpha = score
+        elif not self.parent.is_turn and self.parent.beta > score:
+            self.parent.beta = score
 
     def get_num_leafs(self, tree):
         if tree.children == []:
@@ -204,32 +199,43 @@ class PlayerLV:
         return moves
 
 
-    def build_tree(self, tree, board, id: int, steps: int) -> None:
-        # if not tree.is_valid():
-        #     print("haha")
-        #     return None
-
+    def build_tree(self, tree, board, steps: int) -> None:
         # if (len(moves) > 3 and steps <= 0) or len(moves) == 0:
-        if steps == 0:
+        if steps == MAX_STEPS:
             score = eval_board(board, self.id, self.opp)
             tree.set_score(score)
-            # print("Steps and Score -- " + str(steps) + ": " + str(score))
+            # print("final score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(score))
             return None
 
-        for move in self.get_moves(board, id):
+        cur_id = steps % 2 + 1
+
+        for move in self.get_moves(board, cur_id):
             next_board = copy.deepcopy(board)
-            next_board[move[0]][move[1]] = id
-            next_tree = MoveTree(move, id == self.id)
-            tree.add_child(next_tree)
+            next_board[move[0]][move[1]] = cur_id
+            next_tree = MoveTree(move, cur_id == self.id)
 
-            self.build_tree(next_tree, next_board, 3-id, steps-1)
+            if tree.alpha < tree.beta: # If the next tree is valid, add child. Else skip.
+                tree.add_child(next_tree)
+                # next_tree.parent = tree
+                # tree.children.append(next_tree)
 
-        if tree.is_turn:
-            tree.set_score(max(child.score for child in tree.children))
-        else:
-            tree.set_score(min(child.score for child in tree.children))
-        final_score = tree.score
-        print("final score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(final_score))
+                # if tree.is_turn:
+                #     next_tree.alpha = tree.alpha
+                # else:
+                #     next_tree.beta = tree.beta
+
+                self.build_tree(next_tree, next_board, steps + 1)
+            # else:
+            #     print("haha")
+
+        if tree.parent:
+            if tree.is_turn: # If the next turn is AI, choose the move with max score.
+                tree.set_score(max(child.score for child in tree.children))
+            else:
+                tree.set_score(min(child.score for child in tree.children))
+
+        # final_score = tree.score
+        # print("final score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(final_score))
 
 
     def move(self, board: Board) -> tuple:
@@ -240,9 +246,9 @@ class PlayerLV:
 
         move_tree = MoveTree(board.last_move, True)
 
-        self.build_tree(move_tree, board.board, self.id, 2)
+        self.build_tree(move_tree, board.board, 0)
 
-        print("num_of_leafs: " + str(move_tree.get_num_leafs(move_tree)))
+        # print("num_of_leafs: " + str(move_tree.get_num_leafs(move_tree)))
 
         max_score = move_tree.children[0].score
         max_children = [move_tree.children[0]]
@@ -257,7 +263,7 @@ class PlayerLV:
                 elif child.score == max_score:
                     max_children.append(child)
         
-        # Should be random
+        # Should be stochastic
         return random.choice(max_children).move
 
 
