@@ -1,6 +1,7 @@
 from unittest import TestCase
 from classes import Board
-from dicky_score_counter import ScoreCounter
+from dicky_score_counter import ScoreCounter, Chain
+
 
 class TestScoreCounter(TestCase):
     def setUp(self):
