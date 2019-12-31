@@ -155,7 +155,7 @@ class PlayerLV:
 
                 next_score_board_ai = copy.deepcopy(score_board_ai)
                 next_score_board_human = copy.deepcopy(score_board_human)
-                self.update_in_four_dirs(board, next_score_board_ai, next_score_board_human, move)
+                self.update_in_four_dirs(next_board, next_score_board_ai, next_score_board_human, move)
 
                 self.build_tree(next_tree, next_board, next_score_board_ai, next_score_board_human, steps + 1)
             # else:
