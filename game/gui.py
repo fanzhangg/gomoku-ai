@@ -14,8 +14,8 @@ class GUI:
         self.turn = "black"
         self.display()
 
-        self.p1 = PlayerLV2(1, "White")
-        self.p2 = Player(2, "Black")
+        self.p1 = PlayerLV2(1, "Black")
+        self.p2 = Player(2, "White")
         self.board = Board(15, 15)
 
         self.win.mainloop()
@@ -44,11 +44,12 @@ class GUI:
 
     def click_button(self, x, y):
         print("click button")
+
         if self.buttons[x][y]["text"] == "":
             if self.turn == "black":
                 self.buttons[x][y]["text"] = "⚫"
-                self.board.put(1, x, y)
-                if self.is_win(1, (x, y)):
+                self.board.put(2, x, y)
+                if self.is_win(2, (x, y)):
                     messagebox.showinfo("Black wins!", "Do you want to play again?")
                 else:
                     self.turn = "white"
@@ -56,11 +57,13 @@ class GUI:
 
     def put_white(self):
         print("put white")
+        print(self.board.board)
         x, y = self.p1.move(self.board)
 
-        self.board.put(2, x, y)
+        print(f"x: {x}, y: {y}")
+        self.board.put(1, x, y)
         self.buttons[x][y]["text"] = "⚪️"
-        if self.is_win(2, (x, y)):
+        if self.is_win(1, (x, y)):
             messagebox.showinfo("White wins!", "Do you want to play again?")
         else:
             self.turn = "black"
