@@ -1,25 +1,21 @@
-from Player_lv import Playerlv
-from gomoku import PlayerLV
-from game.board import *
+from player_lv_V1 import PlayerLV1
+from player_lv_V2 import PlayerLV2
+from game.board import Board
+from game.player import Player
+from game.game import Game
                 
 if __name__ == "__main__":
-    Player_lv1 = Playerlv(2, "Black")
-    Player_lv2 = Playerlv(2, "White")
-    Player_LV1 = PlayerLV(1, "Black")
-    Player_LV2 = PlayerLV(1, "White")
-    Player_black = Player(1, "Black")
-    Player_white = Player(2, "White")
+    lv1_black = PlayerLV1(2, "Black")
+    lv1_white = PlayerLV1(2, "White")
+    lv2_black = PlayerLV2(1, "Black")
+    lv2_white = PlayerLV2(1, "White")
+    player_black = Player(1, "Black")
+    player_white = Player(2, "White")
 
     # Can choose different modes
-    # game = Game(Board(15, 15), Player_lv1, Player_LV2)
-    # game = Game(Board(15, 15), Player_black, Player_LV2)
-    game = Game(Board(15, 15), Player_LV1, Player_white)
-
-    # Not used currently
-    # Player_zf = DummyAI(2, 1, "White")
-    # game = Game(Board(15, 15), Player_lv1, Player_zf)
-    # game = Game(Board(15, 15), Player_zf, Player_lv2)
-    # game = Game(Board(15, 15), Player_black, Player_zf)
-    # game = Game(Board(15, 15), Player_zf, Player_white)
+    # game = Game(Board(15, 15), lv1_black, lv2_white)
+    game = Game(Board(15, 15), lv2_black, lv1_white)
+    game = Game(Board(15, 15), lv2_black, player_white)
+    game = Game(Board(15, 15), player_black, lv2_white)
 
     game.play_one_round()
