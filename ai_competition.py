@@ -4,10 +4,10 @@ from gomoku import PlayerLV, MoveTree
 from classes import *
                 
 if __name__ == "__main__":
-    Player_lv1 = Playerlv(1, "Black")
+    Player_lv1 = Playerlv(2, "Black")
     Player_lv2 = Playerlv(2, "White")
     Player_LV1 = PlayerLV(1, "Black")
-    Player_LV2 = PlayerLV(2, "White")
+    Player_LV2 = PlayerLV(1, "White")
     Player_black = Player(1, "Black")
     Player_white = Player(2, "White")
 

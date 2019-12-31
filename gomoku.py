@@ -6,7 +6,13 @@ import math
 import numpy as np
 
 
-MAX_STEPS = 2
+MAX_STEPS = 3
+AI = 1
+HUMAN = 2
+ROW = 0
+COLUMN = 1
+BACKSLASH = 2
+SLASH = 3
 
 
 class MoveTree:
@@ -30,11 +36,12 @@ class MoveTree:
 
     def set_score(self, score: int) -> None:
         self.score = score
+
         if self.parent.is_turn and self.parent.alpha < score:
             self.parent.alpha = score
         elif not self.parent.is_turn and self.parent.beta > score:
             self.parent.beta = score
-
+            
     def get_num_leafs(self, tree):
         if tree.children == []:
             return 1
@@ -43,7 +50,6 @@ class MoveTree:
             num += self.get_num_leafs(child)
         return num
         
-
 
 class PlayerLV:
     def __init__(self, id: int, stone: str) -> None:
@@ -62,13 +68,19 @@ class PlayerLV:
                 if board[point] != self.opp:
                     score_board_human[point] = update_score(board, point, 0, self.opp)
 
-        for k in range(len(board)):
-            if k != i:
                 point = (k, j)
                 if board[point] != self.id:
                     score_board_ai[point] = update_score(board, point, 1, self.id)
                 if board[point] != self.opp:
                     score_board_human[point] = update_score(board, point, 1, self.opp)
+
+        # for k in range(len(board)):
+        #     if k != i:
+        #         point = (k, j)
+        #         if board[point] != self.id:
+        #             score_board_ai[point] = update_score(board, point, 1, self.id)
+        #         if board[point] != self.opp:
+        #             score_board_human[point] = update_score(board, point, 1, self.opp)
 
         for k in range(max(-i, -j), min(len(board) - i, len(board) - j)):
             if k != 0:
@@ -123,10 +135,7 @@ class PlayerLV:
 
     def build_tree(self, tree, board, score_board_ai, score_board_human, steps: int) -> None:
 
-        # if (len(moves) > 3 and steps <= 0) or len(moves) == 0:
         if steps == MAX_STEPS:
-            # score = eval_board(board, self.id, self.opp) - eval_board(board, self.opp, self.id)
-            # print(score_board_human)
             score = np.sum(score_board_ai - score_board_human)
             tree.set_score(score)
             # if score < -5000:
@@ -138,12 +147,10 @@ class PlayerLV:
         cur_id = 1 if tree.is_turn else 2
 
         for move in self.get_moves(board, cur_id):
-            next_board = copy.deepcopy(board)
-            next_board[move] = cur_id
-            next_tree = MoveTree(move, not tree.is_turn)
 
             if tree.alpha < tree.beta: # If the next tree is valid, add child. Else skip.
             # if 1:
+                next_tree = MoveTree(move, not tree.is_turn)
                 tree.add_child(next_tree)
                 # next_tree.parent = tree
                 # tree.children.append(next_tree)
@@ -152,6 +159,9 @@ class PlayerLV:
                 #     next_tree.alpha = tree.alpha
                 # else:
                 #     next_tree.beta = tree.beta
+
+                next_board = copy.deepcopy(board)
+                next_board[move] = cur_id
 
                 next_score_board_ai = copy.deepcopy(score_board_ai)
                 next_score_board_human = copy.deepcopy(score_board_human)
@@ -175,6 +185,7 @@ class PlayerLV:
 
 
     def move(self, board: Board) -> tuple:
+
         moves = self.get_moves(board.board, self.id)
         # print(moves)
         if len(moves) == 0:
@@ -196,9 +207,6 @@ class PlayerLV:
         max_score = move_tree.children[0].score
         max_children = [move_tree.children[0]]
         for child in move_tree.children[1:]:
-
-            # print("Then: " + str(child.move) + ", " + str(child.score))
-
             if child.score is not None:
                 if child.score > max_score:
                     max_children = [child]
@@ -206,6 +214,8 @@ class PlayerLV:
                 elif child.score == max_score:
                     max_children.append(child)
         
+        # for child in max_children:
+        #     print(child.move)
         # Should be stochastic
         return random.choice(max_children).move
 
@@ -254,10 +264,16 @@ def update_score(board, pivot, dir, id):
 
     if dir == 0: # row
         row = board[i, j:]
+
     elif dir == 1: # col
         row = board[i:, j]
+
     elif dir == 2: # backslash
-        row = board.diagonal(i - j)[min(i,j):]
+        # row = board.diagonal(i - j)[min(i,j):]
+        for k in range(min(len(board) - i, len(board) - j)):
+            point = (i+k, j+k)
+            row.append(board[point])
+
     elif dir == 3: # slash
         # row = np.fliplr(board).diagonal(j - i)[min(i,j):]
         for k in range(min(len(board) - i, j + 1)):
@@ -313,7 +329,7 @@ def get_one_dir_score(row, id):
 
     if "11111" in new_chain:
         # print(new_chain)
-        return 1000000
+        return 100000
 
     if new_chain in score_dict:
         # print(new_chain)
@@ -327,7 +343,7 @@ b = [[0,0,0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0,0,0],
      [0,0,0,1,0,0,1,0,0,0],
      [0,0,0,0,1,2,2,0,0,0],
-     [0,0,0,0,1,1,0,0,0,0],
+     [0,0,0,0,1,1,1,0,0,0],
      [0,0,0,1,0,0,1,0,0,0],
      [0,0,0,0,0,0,0,1,0,0],
      [0,0,0,0,0,0,0,0,0,0],
@@ -335,7 +351,7 @@ b = [[0,0,0,0,0,0,0,0,0,0],
 b = np.array(b)
 # print(get_one_dir_score(a, 1))
 # r = update_score(b, (2,2), 2, 1)
-r = update_score(b, (4,5), 3, 1)
+r = update_score(b, (4,5), 2, 1)
 print(r)
 
 # c = [[1,2,3],
