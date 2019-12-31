@@ -45,8 +45,10 @@ class ScoreCounter:
                         chain.has_gap = True
                     elif chain.has_gap:    # second 0
                         chain.end_blocked = False
+                        return chain
                     elif board.get(x + step[0], y + step[1]) == 0:  # 2+ 0s
                         chain.end_blocked = False
+                        return chain
 
                 elif num == self.me:    # my stone
                     chain.list.append(num)
@@ -58,6 +60,7 @@ class ScoreCounter:
             except IndexError:  # reach the edge
                 chain.list.append(self.opponent)
                 chain.end_blocked = True
-                return Chain
+                return chain
 
-
+            x += step[0]
+            y += step[1]
