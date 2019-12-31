@@ -28,13 +28,22 @@ class GUI:
 
         for i in range(15):
             for j in range(15):
-                button = Button(f1, text="", width=2, heigh=1, command=lambda x=i, y=j: self.click_button(x, y))
+                button = Button(f1, text="", width=2, heigh=1, command=lambda i=i, j=j: self.click_button(i, j))
+                # button.pack()
                 button.grid(row=i, column=j)
                 row.append(button)
             self.buttons.append(row)
             row = []
 
+        # for i in range(len(self.buttons)):
+        #     for j in range(len(row)):
+        #         print(i, j)
+        #         button = self.buttons[i][j]
+        #         button.bind("<Button>", lambda i=i, j=j: self.click_button(i, j))
+        #         button.bind("<ButtonRelease>", self.put_white)
+
     def click_button(self, x, y):
+        print("click button")
         if self.buttons[x][y]["text"] == "":
             if self.turn == "black":
                 self.buttons[x][y]["text"] = "⚫"
@@ -43,15 +52,18 @@ class GUI:
                     messagebox.showinfo("Black wins!", "Do you want to play again?")
                 else:
                     self.turn = "white"
+            self.put_white()
 
-            x, y = self.p1.move(self.board)
+    def put_white(self):
+        print("put white")
+        x, y = self.p1.move(self.board)
 
-            self.board.put(2, x, y)
-            self.buttons[x][y]["text"] = "⚪️"
-            if self.is_win(2, (x, y)):
-                messagebox.showinfo("White wins!", "Do you want to play again?")
-            else:
-                self.turn = "black"
+        self.board.put(2, x, y)
+        self.buttons[x][y]["text"] = "⚪️"
+        if self.is_win(2, (x, y)):
+            messagebox.showinfo("White wins!", "Do you want to play again?")
+        else:
+            self.turn = "black"
 
     def is_win(self, stone_num: int, coord: tuple) -> bool:
         """
