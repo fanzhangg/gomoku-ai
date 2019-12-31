@@ -140,8 +140,8 @@ class PlayerLV:
             next_board[move] = cur_id
             next_tree = MoveTree(move, not tree.is_turn)
 
-            # if tree.alpha < tree.beta: # If the next tree is valid, add child. Else skip.
-            if 1:
+            if tree.alpha < tree.beta: # If the next tree is valid, add child. Else skip.
+            # if 1:
                 tree.add_child(next_tree)
                 # next_tree.parent = tree
                 # tree.children.append(next_tree)
@@ -257,7 +257,10 @@ def update_score(board, pivot, dir, id):
     elif dir == 2: # backslash
         row = board.diagonal(i - j)[min(i,j):]
     elif dir == 3: # slash
-        row = np.fliplr(board).diagonal(j - i)[min(i,j):]
+        # row = np.fliplr(board).diagonal(j - i)[min(i,j):]
+        for k in range(min(len(board) - i, j + 1)):
+            point = (i+k, j-k)
+            row.append(board[point])
 
     # print(row)
 
@@ -320,17 +323,25 @@ a = [2,1,1,1,1,1,0,0,0]
 b = [[0,0,0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0,0,0],
-     [0,0,0,1,0,0,0,0,0,0],
+     [0,0,0,1,0,0,1,0,0,0],
      [0,0,0,0,1,2,2,0,0,0],
-     [0,0,0,0,0,1,0,0,0,0],
-     [0,0,0,0,0,0,1,0,0,0],
+     [0,0,0,0,1,1,0,0,0,0],
+     [0,0,0,1,0,0,1,0,0,0],
      [0,0,0,0,0,0,0,1,0,0],
      [0,0,0,0,0,0,0,0,0,0],
      [0,0,0,0,0,0,0,0,0,0]]
 b = np.array(b)
 # print(get_one_dir_score(a, 1))
-r = update_score(b, (2,2), 2, 1)
+# r = update_score(b, (2,2), 2, 1)
+r = update_score(b, (4,5), 3, 1)
 print(r)
+
+# c = [[1,2,3],
+#      [4,5,6],
+#      [7,8,9]]
+
+# c = np.array(c)
+# print(c[::-1])
 
 
 
