@@ -6,7 +6,7 @@ import math
 import numpy as np
 
 
-MAX_STEPS = 3
+MAX_STEPS = 2
 AI = 1
 HUMAN = 2
 ROW = 0
@@ -53,8 +53,8 @@ class MoveTree:
 
 class PlayerLV2:
     def __init__(self, id: int, stone: str) -> None:
-        self.id = id
-        self.opp = 3 - id
+        self.id = 1
+        self.opp = 2
         self.stone = stone
 
     def update_in_four_dirs(self, board, score_board_ai, score_board_human, move):
@@ -291,13 +291,6 @@ def get_one_dir_score(row, id):
     chain = str(row[0])
     count = 1
 
-    # len(chain) <= 6
-    # while row[count] == id or count < 6:
-    #     chain += str(row[count])
-    #     if row[count] == opp:
-    #         break
-    #     count += 1
-
     for num in row[1:]:
         chain += str(num)
         count += 1
@@ -329,7 +322,7 @@ def get_one_dir_score(row, id):
 
     if "11111" in new_chain:
         # print(new_chain)
-        return 100000
+        return 1000000
 
     if new_chain in score_dict:
         # print(new_chain)
