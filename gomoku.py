@@ -1,5 +1,5 @@
 import copy
-from classes import Board
+from game.board import Board
 import random
 # from score_counter import eval_board
 import math
