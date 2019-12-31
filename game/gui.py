@@ -122,6 +122,3 @@ class GUI:
         for step in steps:
             if is_chain(stone_num, coord, step):
                 return True
-
-
-gui = GUI()
