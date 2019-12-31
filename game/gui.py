@@ -1,9 +1,8 @@
 from tkinter import *
 from tkinter import messagebox
-from gomoku import PlayerLV
-from game.board import Board
 from game.player import Player
-import time
+from player_lv_V2 import PlayerLV2
+from game.board import Board
 
 
 class GUI:
@@ -15,7 +14,7 @@ class GUI:
         self.turn = "black"
         self.display()
 
-        self.p1 = PlayerLV(1, "White")
+        self.p1 = PlayerLV2(1, "White")
         self.p2 = Player(2, "Black")
         self.board = Board(15, 15)
 

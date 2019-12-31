@@ -1,3 +1,7 @@
+from game.board import Board
+from game.player import Player
+
+
 class Game:
     def __init__(self, board: Board, p1: Player, p2: Player):
         self.board = board
@@ -57,7 +61,7 @@ class Game:
         #       row      col     diagonal
         steps = [(0, 1), (1, 0), (1, -1), (1, 1)]
         for step in steps:
-            if self.is_chain(id, coord, step) == True:
+            if self.is_chain(id, coord, step):
                 return True
 
     def play_one_round(self):
@@ -69,6 +73,6 @@ class Game:
                 self.board.put(p.id, row, col)
                 print(p.stone + " makes " + str((row, col)) + "\n")
                 self.board.print_board()
-                if self.is_win(p.id, (row, col)) == True:
+                if self.is_win(p.id, (row, col)):
                     print(f"OMG, {p.stone} wins!\n")
                     return

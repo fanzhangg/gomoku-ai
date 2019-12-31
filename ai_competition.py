@@ -2,7 +2,7 @@ from player_lv_V1 import PlayerLV1
 from player_lv_V2 import PlayerLV2
 from game.board import Board
 from game.player import Player
-from game.game import Game
+from game.cli import Game
                 
 if __name__ == "__main__":
     lv1_black = PlayerLV1(2, "Black")
