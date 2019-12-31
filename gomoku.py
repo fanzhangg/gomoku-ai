@@ -1,5 +1,5 @@
 import copy
-from classes import Board
+from game.board import Board
 import random
 # from score_counter import eval_board
 import math
@@ -42,8 +42,6 @@ class MoveTree:
         for child in tree.children:
             num += self.get_num_leafs(child)
         return num
-        
-
 
 class PlayerLV:
     def __init__(self, id: int, stone: str) -> None:

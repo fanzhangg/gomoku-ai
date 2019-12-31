@@ -1,7 +1,6 @@
-from dummy_ai import DummyAI
 from Player_lv import Playerlv
-from gomoku import PlayerLV, MoveTree
-from classes import *
+from gomoku import PlayerLV
+from game.board import *
                 
 if __name__ == "__main__":
     Player_lv1 = Playerlv(1, "Black")
@@ -13,9 +12,8 @@ if __name__ == "__main__":
 
     # Can choose different modes
     # game = Game(Board(15, 15), Player_lv1, Player_LV2)
-    game = Game(Board(15, 15), Player_LV1, Player_lv2)
     # game = Game(Board(15, 15), Player_black, Player_LV2)
-    # game = Game(Board(15, 15), Player_LV1, Player_white)
+    game = Game(Board(15, 15), Player_LV1, Player_white)
 
     # Not used currently
     # Player_zf = DummyAI(2, 1, "White")
