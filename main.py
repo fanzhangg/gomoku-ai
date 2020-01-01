@@ -22,7 +22,8 @@ if __name__ == "__main__":
                     x, y = game.get_draw_pos(x, y)
                     game.draw_stone(x, y)
 
-        if game.turn == "white":
-            game.ai_move()
+        if event.type == pygame.MOUSEBUTTONUP:
+            if game.turn == "white":
+                game.ai_move()
 
         pygame.display.update()
