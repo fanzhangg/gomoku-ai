@@ -24,6 +24,7 @@ class MoveTree:
         self.beta = math.inf
         self.parent = None
         self.children = []
+        self.winner = 0
 
     def add_child(self, child) -> None:
         child.parent = self
@@ -37,9 +38,9 @@ class MoveTree:
     def set_score(self, score: int) -> None:
         self.score = score
 
-        if self.parent.is_turn and self.parent.alpha < score:
+        if not self.is_turn and self.parent.alpha < score:
             self.parent.alpha = score
-        elif not self.parent.is_turn and self.parent.beta > score:
+        elif self.is_turn and self.parent.beta > score:
             self.parent.beta = score
             
     def get_num_leafs(self, tree):
@@ -51,61 +52,11 @@ class MoveTree:
         return num
         
 
-class PlayerLV2:
+class PlayerLV3:
     def __init__(self, id: int, stone: str) -> None:
         self.id = 1
         self.opp = 2
         self.stone = stone
-
-    def update_in_four_dirs(self, board, score_board_ai, score_board_human, move):
-        i, j = move
-        
-        for k in range(len(board)):
-            if k != j:
-                point = (i, k)
-                if board[point] != self.id:
-                    score_board_ai[point] = update_score(board, point, 0, self.id)
-                if board[point] != self.opp:
-                    score_board_human[point] = update_score(board, point, 0, self.opp)
-
-                point = (k, j)
-                if board[point] != self.id:
-                    score_board_ai[point] = update_score(board, point, 1, self.id)
-                if board[point] != self.opp:
-                    score_board_human[point] = update_score(board, point, 1, self.opp)
-
-        # for k in range(len(board)):
-        #     if k != i:
-        #         point = (k, j)
-        #         if board[point] != self.id:
-        #             score_board_ai[point] = update_score(board, point, 1, self.id)
-        #         if board[point] != self.opp:
-        #             score_board_human[point] = update_score(board, point, 1, self.opp)
-
-        for k in range(max(-i, -j), min(len(board) - i, len(board) - j)):
-            if k != 0:
-                point = (i+k, j+k)
-                if board[point] != self.id:
-                    score_board_ai[point] = update_score(board, point, 2, self.id)
-                if board[point] != self.opp:
-                    score_board_human[point] = update_score(board, point, 2, self.opp)
-
-        for k in range(max(-i, j - len(board) + 1), min(len(board) - i, j + 1)):
-            if k != 0:
-                point = (i+k, j-k)
-                if board[point] != self.id:
-                    score_board_ai[point] = update_score(board, point, 3, self.id)
-                if board[point] != self.opp:
-                    score_board_human[point] = update_score(board, point, 3, self.opp)
-
-        score_board_ai[move] = 0
-        score_board_human[move] = 0
-        if board[move] != self.id:
-            for dir in range(4):
-                score_board_ai[move] += update_score(board, move, dir, self.id)
-        if board[move] != self.opp:
-            for dir in range(4):
-                score_board_human[move] += update_score(board, move, dir, self.opp)
 
     
     def get_moves(self, board, id: int) -> list:
@@ -138,10 +89,13 @@ class PlayerLV2:
         if steps == MAX_STEPS:
             score = np.sum(score_board_ai - score_board_human)
             tree.set_score(score)
-            # if score < -5000:
-            #     print("Leaf score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(score))
-            # print("Leaf score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(score))
+
+            print("Leaf score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(score))
+
             return None
+
+        if tree.winner:
+            tree.set_score(math.inf) if tree.winner == 1 else tree.set_score(-math.inf)
 
         # Current id is 1 when steps is even.
         cur_id = 1 if tree.is_turn else 2
@@ -152,20 +106,13 @@ class PlayerLV2:
             # if 1:
                 next_tree = MoveTree(move, not tree.is_turn)
                 tree.add_child(next_tree)
-                # next_tree.parent = tree
-                # tree.children.append(next_tree)
-
-                # if tree.is_turn:
-                #     next_tree.alpha = tree.alpha
-                # else:
-                #     next_tree.beta = tree.beta
 
                 next_board = copy.deepcopy(board)
                 next_board[move] = cur_id
 
                 next_score_board_ai = copy.deepcopy(score_board_ai)
                 next_score_board_human = copy.deepcopy(score_board_human)
-                self.update_in_four_dirs(next_board, next_score_board_ai, next_score_board_human, move)
+                update_in_four_dirs(next_tree, next_board, next_score_board_ai, next_score_board_human, move)
 
                 self.build_tree(next_tree, next_board, next_score_board_ai, next_score_board_human, steps + 1)
             # else:
@@ -178,10 +125,10 @@ class PlayerLV2:
             else:
                 tree.set_score(min(child.score for child in tree.children))
 
-        # final_score = tree.score
-        # for child in tree.children:
-        #     if child.score == final_score:
-        #         print("steps, cur_move, next_move, score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(child.move) + " -- " + str(final_score))
+        final_score = tree.score
+        for child in tree.children:
+            if child.score == final_score:
+                print("steps, cur_move, next_move, score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(child.move) + " -- " + str(final_score))
 
 
     def move(self, board: Board) -> tuple:
@@ -196,9 +143,8 @@ class PlayerLV2:
         score_board_human = np.zeros((board.rows, board.rows))
         for i in range(board.rows):
             for j in range(board.rows):
-                for dir in range(4):
-                    score_board_ai[i][j] += update_score(board.board, (i,j), dir, self.id)
-                    score_board_human[i][j] += update_score(board.board, (i,j), dir, self.opp)
+                score_board_ai[i][j] += update_score(move_tree, board.board, (i,j), self.id)
+                score_board_human[i][j] += update_score(move_tree, board.board, (i,j), self.opp)
 
         self.build_tree(move_tree, board.board, score_board_ai, score_board_human, 0)
 
@@ -223,7 +169,7 @@ class PlayerLV2:
 # 从一个点向一个方向扩散(若发现2则停止搜索)，直到 [cur_num=2 or cur_num=0] and [len(str)>=6 or num(2)=2] 为止。
 # 每个点的分数 = 以这个点为起点最长chain的分数
 # 若发现连续五个1，则直接return 100000.
-score_dict = {
+score_dict_ai = {
         # half one
         "000012": 1, "210000": 1, 
 
@@ -249,43 +195,123 @@ score_dict = {
         "011100": 1000, "001110": 1000, "010110": 1000, "011010": 1000, 
 
         # half four
-        "0101110": 5000, "0110110": 5000, "0111010": 5000, 
-        "011112": 5000, "0101112": 5000, "0110112": 5000, "0111012": 5000, 
-        "211110": 5000, "2101110": 5000, "2110110": 5000, "2111010": 5000, 
-        "2101112": 5000, "2110112": 5000, "2111012": 5000, 
+        "0101110": 10000, "0110110": 10000, "0111010": 10000, 
+        "011112": 10000, "0101112": 10000, "0110112": 10000, "0111012": 10000, 
+        "211110": 10000, "2101110": 10000, "2110110": 10000, "2111010": 10000, 
+        "2101112": 10000, "2110112": 10000, "2111012": 10000, 
         
+        # # half four
+        # "0101110": 1000, "0110110": 1000, "0111010": 1000, 
+        # "011112": 1000, "0101112": 1000, "0110112": 1000, "0111012": 1000, 
+        # "211110": 1000, "2101110": 1000, "2110110": 1000, "2111010": 1000, 
+        # "2101112": 1000, "2110112": 1000, "2111012": 1000, 
+
         # living four
         "011110": 100000
         }
 
-def update_score(board, pivot, dir, id):
+score_dict_huamn = {
+        # half one
+        "000021": 1, "120000": 1, 
+
+        # living one
+        "020000": 10, "002000": 10, "000200": 10, "000020": 10, 
+
+        # half two
+        "0200020": 10, 
+        "000221": 10, "002021": 10, "020021": 10, 
+        "122000": 10, "120200": 10, "120020": 10, "1200020": 10, 
+        "1200021": 10, 
+        
+        # living two
+        "022000": 100, "020200": 100, "020020": 100, "002200": 100, "002020": 100, "000220": 100, 
+
+        # half three
+        "0200220": 100, "0202020": 100, "0220020": 100, 
+        "002221": 100, "020221": 100, "022021": 100, "0200221": 100, 
+        "122200": 100, "122020": 100, "120220": 100, "1220010": 100, "1202020": 100, "1200220": 100, 
+        "1220021": 100, "1202021": 100, "1200221": 100, 
+
+        # living three
+        "022200": 1000, "002220": 1000, "020220": 1000, "022020": 1000, 
+
+        # half four
+        "0202220": 1000, "0220220": 1000, "0222020": 1000, 
+        "022221": 1000, "0202221": 1000, "0220221": 1000, "0222021": 1000, 
+        "122220": 1000, "1202220": 1000, "1220220": 1000, "1222020": 1000, 
+        "1202221": 1000, "1220221": 1000, "1222021": 1000, 
+
+        # living four
+        "022220": 10000
+        }
+
+def update_in_four_dirs(tree, board, score_board_ai, score_board_human, move):
+    """
+    Could be improved by selecting one direction from score board of shape (rows, cols, 4).
+    """
+    i, j = move
+
+    for k in range(len(board)):
+        point = (i, k)
+        # print(point)
+        # print(board[move])
+        if board[point] != 1:
+            score_board_ai[point] = update_score(tree, board, point, 1)
+            # print(score_board_ai[point])
+        if board[point] != 2:
+            score_board_human[point] = update_score(tree, board, point, 2)
+            # print(score_board_human[point])
+
+        point = (k, j)
+        if board[point] != 1:
+            score_board_ai[point] = update_score(tree, board, point, 1)
+        if board[point] != 2:
+            score_board_human[point] = update_score(tree, board, point, 2)
+
+    for k in range(max(-i, -j), min(len(board) - i, len(board) - j)):
+        point = (i+k, j+k)
+        if board[point] != 1:
+            score_board_ai[point] = update_score(tree, board, point, 1)
+        if board[point] != 2:
+            score_board_human[point] = update_score(tree, board, point, 2)
+
+    for k in range(max(-i, j - len(board) + 1), min(len(board) - i, j + 1)):
+        point = (i+k, j-k)
+        if board[point] != 1:
+            score_board_ai[point] = update_score(tree, board, point, 1)
+        if board[point] != 2:
+            score_board_human[point] = update_score(tree, board, point, 2)
+
+def update_score(tree, board, pivot, id):
     i,j = pivot
     row = []
+    total_score= 0
 
-    if dir == 0: # row
-        row = board[i, j:]
+    row = board[i, j:]
+    total_score += get_one_dir_score(tree, row, id)
 
-    elif dir == 1: # col
-        row = board[i:, j]
+    row = board[i:, j]
+    total_score += get_one_dir_score(tree, row, id)
 
-    elif dir == 2: # backslash
-        # row = board.diagonal(i - j)[min(i,j):]
-        for k in range(min(len(board) - i, len(board) - j)):
-            point = (i+k, j+k)
-            row.append(board[point])
+    # row = board.diagonal(i - j)[min(i,j):]
+    row = []
+    for k in range(min(len(board) - i, len(board) - j)):
+        point = (i+k, j+k)
+        row.append(board[point])
+    total_score += get_one_dir_score(tree, row, id)
 
-    elif dir == 3: # slash
-        # row = np.fliplr(board).diagonal(j - i)[min(i,j):]
-        for k in range(min(len(board) - i, j + 1)):
-            point = (i+k, j-k)
-            row.append(board[point])
+    # row = np.fliplr(board).diagonal(j - i)[min(i,j):]
+    row = []
+    for k in range(min(len(board) - i, j + 1)):
+        point = (i+k, j-k)
+        row.append(board[point])
+    total_score += get_one_dir_score(tree, row, id)
 
-    # print(row)
+    # print(total_score)
+    return total_score
 
-    return get_one_dir_score(row, id)
 
-
-def get_one_dir_score(row, id):
+def get_one_dir_score(tree, row, id):
     opp = 3-id
     row = np.append(row, [opp])
     chain = str(row[0])
@@ -298,39 +324,20 @@ def get_one_dir_score(row, id):
             break
         if num == 0 and count >= 6:
             break
-
+    
     # print(chain)
 
-    # if len(chain) == 6:
-    #     print(chain)
-
-    new_chain = ""
-    if id == 2:
-        for i in range(len(chain)):
-            if chain[i] != "0":
-                new_chain += str(3 - int(chain[i]))
-            else:
-                new_chain += chain[i]
-    else:
-        new_chain = chain
-
-    # print(new_chain)
-
-    # if new_chain[0] == "1":
-    # if new_chain[-1] == "1":
-        # print(new_chain)
-
-    if "11111" in new_chain:
-        # print(new_chain)
+    if str(id) * 5 in chain:
+        tree.winner = id
         return 1000000
 
-    if new_chain in score_dict:
-        # print(new_chain)
-        return score_dict[new_chain]
-    else:
-        return 0
+    if id == 1 and chain in score_dict_ai:
+            return score_dict_ai[chain]
+    elif id == 2 and chain in score_dict_huamn:
+            return score_dict_huamn[chain]
 
-# a = [2,1,1,1,1,1,0,0,0]
+    return 0
+
 # b = [[0,0,0,0,0,0,0,0,0,0],
 #      [0,0,0,0,0,0,0,0,0,0],
 #      [0,0,0,0,0,0,0,0,0,0],
@@ -342,18 +349,57 @@ def get_one_dir_score(row, id):
 #      [0,0,0,0,0,0,0,0,0,0],
 #      [0,0,0,0,0,0,0,0,0,0]]
 # b = np.array(b)
-# print(get_one_dir_score(a, 1))
-# r = update_score(b, (2,2), 2, 1)
-# r = update_score(b, (4,5), 2, 1)
+# r = update_score(None, b, (4,5), 3, 1)
 # print(r)
 
-# c = [[1,2,3],
-#      [4,5,6],
-#      [7,8,9]]
+board = [[0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,1,1,1,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,2,2,2,0,0,0,0,0,0],
+         [0,0,0,0,0,0,2,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0],
+         [0,0,0,0,0,0,0,0,0,0,0,0,0,0,0]]
 
-# c = np.array(c)
-# print(c[::-1])
+board = np.array(board)
 
+# print(board)
+
+rows = len(board)
+move_tree = MoveTree((-1,-1), True)
+score_board_ai = np.zeros((rows, rows), dtype=int)
+score_board_human = np.zeros((rows, rows), dtype=int)
+for i in range(rows):
+    for j in range(rows):
+        score_board_ai[i][j] += update_score(move_tree, board, (i,j), 1)
+        score_board_human[i][j] += update_score(move_tree, board, (i,j), 2)
+
+print(score_board_ai)
+print()
+# print(score_board_human)
+print()
+
+board[(4,3)] = 1
+update_in_four_dirs(move_tree, board, score_board_ai, score_board_human, (4,3))
+
+print(score_board_ai)
+print()
+# print(score_board_human)
+print()
+
+board[(7,5)] = 2
+update_in_four_dirs(move_tree, board, score_board_ai, score_board_human, (7,5))
+
+print(score_board_ai)
+print()
+# print(score_board_human)
 
 
 
