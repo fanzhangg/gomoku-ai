@@ -6,6 +6,8 @@ import random
 import math
 import numpy as np
 
+
+MAX_STEPS = 2
         
 
 class PlayerLV4:
