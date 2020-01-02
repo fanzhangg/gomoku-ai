@@ -1,6 +1,7 @@
 import pygame
 from game.board import Board
-from player_lv_V3 import PlayerLV3
+from player_lv_V2 import PlayerLV2
+from os import path
 
 COLOR_BOARD = (255, 180, 0)
 COLOR_BLACK = (0, 0, 0)
@@ -19,7 +20,7 @@ class GUI:
         self.turn = "black"     # black goes first
         self.cur_player = 2
 
-        self.ai = PlayerLV3(1, "White")
+        self.ai = PlayerLV2(1, "White")
 
         self.steps = {  # keep track of the steps of each stone
             "white": [],
@@ -56,10 +57,17 @@ class GUI:
 
         if self.turn == "white":
             color = COLOR_WHITE
+            img_path = path.abspath("imgs/white.png")
+            img = pygame.image.load(img_path)
         else:
             color = COLOR_BLACK
+            img_path = path.abspath("imgs/black.png")
+            img = pygame.image.load(img_path)
 
-        pygame.draw.circle(self.screen, color, (x, y), GRID_WIDTH//2)   # draw black stone
+        scaled_img = pygame.transform.smoothscale(img, (GRID_WIDTH // 3 * 2, GRID_WIDTH // 3 * 2))
+
+        self.screen.blit(scaled_img, (x - GRID_WIDTH // 3, y - GRID_WIDTH // 3))
+
         self.steps[self.turn].append((x, y))
 
         i, j = x // GRID_WIDTH - 1, y // GRID_WIDTH - 1   # index of the stone in the board
