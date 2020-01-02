@@ -85,15 +85,16 @@ class PlayerLV4:
         else:
             tree.set_score(min([child.score for child in tree.children]))
 
-        # final_score = tree.score
-        # for child in tree.children:
-        #     if child.score == final_score:
-        #         print("steps, cur_move, next_move, score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(child.move) + " -- " + str(final_score))
+        final_score = tree.score
+        for child in tree.children:
+            if child.score == final_score:
+                print("steps, cur_move, next_move, score: " + str(steps) + " -- " + str(tree.move) + " -- " + str(child.move) + " -- " + str(final_score))
 
 
     def move(self, board: Board) -> tuple:
 
         moves = self.get_moves(board.board, self.id)
+        # board.print_board()
         # print(moves)
         if len(moves) == 0:
             return (board.rows//2, board.rows//2)
@@ -114,8 +115,6 @@ class PlayerLV4:
                 elif child.score == max_score:
                     max_children.append(child)
         
-        # for child in max_children:
-        #     print(child.move)
         # Should be stochastic
         return random.choice(max_children).move
         

@@ -140,9 +140,9 @@ def update_in_four_dirs(tree, board, score_board_ai, score_board_human, move):
     for dir in range(4):
         extended_rows[dir] = []
         extended_points[dir] = []
-    count_living_fives = 0
-    count_half_fours = 0
-    count_living_threes = 0
+    # count_living_fives = 0
+    # count_half_fours = 0
+    # count_living_threes = 0
 
 
     for k in range(len(board)):
@@ -161,9 +161,9 @@ def update_in_four_dirs(tree, board, score_board_ai, score_board_human, move):
         extended_rows[SLASH].append(board[i+k][j-k])
 
     for dir in range(4):
-        row = extended_rows[dir]
+        row = [2] + extended_rows[dir] + [2]
         points = extended_points[dir]
-        for idx in range(len(row)):
+        for idx in range(len(points)):
             point = points[idx]
             if board[point] != 1:
                 chain = get_chain(row, idx, AI)
@@ -183,10 +183,10 @@ def update_in_four_dirs(tree, board, score_board_ai, score_board_human, move):
 # 若发现连续五个1，则直接return 1000000.
 def get_chain(row, idx, id):
     row.append(3-id)
-    chain = str(row[idx])
+    chain = str(row[idx+1])
     count = 1
 
-    for num in row[idx+1:]:
+    for num in row[idx+2:]:
         chain += str(num)
         count += 1
         if num == 3-id or (num == 0 and count >= 6):
