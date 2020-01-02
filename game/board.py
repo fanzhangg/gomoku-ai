@@ -1,4 +1,5 @@
 import numpy as np
+from lv_helpers import MoveTree, update_in_four_dirs
 
 
 class Board:
@@ -7,6 +8,8 @@ class Board:
         self.cols = cols
         self.last_move = (-1, -1)
         self.board = np.zeros((rows, cols), dtype=int)  # row major board
+        self.score_board_ai = np.zeros((rows, rows, 4), dtype=int)
+        self.score_board_human = np.zeros((rows, rows, 4), dtype=int)
         self.sign_dic = {0: "_", 1: "1", 2: "2"}
 
     def print_board(self) -> None:
@@ -44,3 +47,5 @@ class Board:
             raise IndexError("col out of bound")
         self.board[row][col] = stone_num
         self.last_move = (row, col)
+        update_in_four_dirs(MoveTree(self.last_move, stone_num == 1), self.board, self.score_board_ai, self.score_board_human, self.last_move)
+

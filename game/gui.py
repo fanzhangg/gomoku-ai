@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from game.player import Player
-from player_lv_V3 import PlayerLV3
+from player_lv_V4 import PlayerLV4
 from game.board import Board
 
 
@@ -14,7 +14,7 @@ class GUI:
         self.turn = "black"
         self.display()
 
-        self.p1 = PlayerLV3(1, "White")
+        self.p1 = PlayerLV4(1, "White")
         self.p2 = Player(2, "Black")
         self.board = Board(15, 15)
 
