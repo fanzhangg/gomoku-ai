@@ -1,7 +1,7 @@
 import pygame
 from game.pygame_gui import GUI
+from game.win_message import WinBox
 from sys import exit
-import time
 
 if __name__ == "__main__":
     pygame.init()
@@ -17,15 +17,24 @@ if __name__ == "__main__":
         event = pygame.event.poll()
 
         if event.type == pygame.MOUSEBUTTONDOWN:
-            x, y = pygame.mouse.get_pos()
+            i, j = pygame.mouse.get_pos()
             if game.turn == "black":
-                if 45 <= x <= game.width and 45 <= y <= game.width:
-                    x, y = game.get_draw_pos(x, y)
-                    game.draw_stone(x, y)
+                if 45 <= i <= game.width and 45 <= j <= game.width:
+                    i, j = game.get_draw_pos(i, j)
+                    game.draw_stone(i, j)
+
+                if game.is_win(2, (i, j)):  # Black wins
+                    game.show_win_msg("Black")
 
         if event.type == pygame.MOUSEBUTTONUP:
+
             if game.turn == "white":
-                game.ai_move()
+                i, j = game.ai_move()
+                print(i, j)
+                print(f"win: {game.is_win(1, (i, j))}")
+
+                if game.is_win(1, (i, j)):  # White wins
+                    game.show_win_msg("White")
 
         # Close the window
         if event.type == pygame.QUIT:

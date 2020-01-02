@@ -1,6 +1,6 @@
 import pygame
 from game.board import Board
-from player_lv_V2 import PlayerLV2
+from player_lv_V3 import PlayerLV3
 from os import path
 
 COLOR_BOARD = (255, 180, 0)
@@ -13,14 +13,15 @@ GRID_WIDTH = 45
 class GUI:
     def __init__(self):
         self.width = 675
-        self.screen = pygame.display.set_mode((self.width + GRID_WIDTH, self.width + GRID_WIDTH))
+        self.height = 700
+        self.screen = pygame.display.set_mode((self.width + GRID_WIDTH, self.height + GRID_WIDTH))
         pygame.display.set_caption("Gomoku")
         self.screen.fill(COLOR_BOARD)
 
         self.turn = "black"     # black goes first
         self.cur_player = 2
 
-        self.ai = PlayerLV2(1, "White")
+        self.ai = PlayerLV3(1, "White")
 
         self.steps = {  # keep track of the steps of each stone
             "white": [],
@@ -91,4 +92,66 @@ class GUI:
             i, j = self.ai.move(self.board)
             x, y = (i + 1) * GRID_WIDTH, (j + 1) * GRID_WIDTH
             self.draw_stone(x, y)
+            return i, j
 
+    def is_win(self, stone_num: int, coord: tuple) -> bool:
+        """
+        check whether the player wins the game when put a stone at the coord
+        me: 1 for black stone, 2 for white stone
+        coord: (row, col)
+        return: true if wins, else false
+        """
+
+        def is_chain(stone_num: int, coord: tuple, step: tuple):
+            """
+            Check whether there is an unbreakable chain of 5 stones at coord such as
+            the coordinates of the adjacent stone is the coordinate of the stone +/- step
+            :return: true if there is a chain of 5 stones, else false
+            """
+            total = 0
+            row, col = coord
+
+            for i in range(5):
+                if total >= 5:
+                    return True
+                try:
+                    if self.board.get(row, col) == stone_num:
+                        total += 1
+                    else:
+                        break
+                except IndexError:
+                    break
+                row += step[0]
+                col += step[1]
+
+            row, col = coord
+            row -= step[0]
+            col -= step[1]
+
+            for i in range(5):
+                if total >= 5:
+                    return True
+                try:
+                    if self.board.get(row, col) == stone_num:
+                        total += 1
+                    else:
+                        break
+                except IndexError:
+                    break
+                row -= step[0]
+                col -= step[1]
+
+            return False
+
+        #       row      col     diagonal
+        steps = [(0, 1), (1, 0), (1, -1), (1, 1)]
+        for step in steps:
+            if is_chain(stone_num, coord, step):
+                return True
+
+    def show_win_msg(self, win_stone: str):
+        pygame.font.init()
+        my_font = pygame.font.SysFont("Arial", 30)
+        text_surface = my_font.render(f"{win_stone} Wins!", True, COLOR_BLACK)
+        text_rect = text_surface.get_rect(center=(self.width/2, self.height))
+        self.screen.blit(text_surface, text_rect)
