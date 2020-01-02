@@ -1,5 +1,6 @@
 import pygame
 from game.pygame_gui import GUI
+from sys import exit
 import time
 
 if __name__ == "__main__":
@@ -25,5 +26,10 @@ if __name__ == "__main__":
         if event.type == pygame.MOUSEBUTTONUP:
             if game.turn == "white":
                 game.ai_move()
+
+        # Close the window
+        if event.type == pygame.QUIT:
+            pygame.quit()
+            exit()
 
         pygame.display.update()
