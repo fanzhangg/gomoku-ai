@@ -1,7 +1,7 @@
 from tkinter import *
 from tkinter import messagebox
 from game.player import Player
-from player_lv_V4 import PlayerLV4
+from ai.player_lv_V4 import PlayerLV4
 from game.board import Board
 
 

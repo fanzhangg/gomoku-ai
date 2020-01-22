@@ -1,7 +1,7 @@
 import pygame
 import pygame.gfxdraw
 from game.board import Board
-from player_lv_V3 import PlayerLV3
+from ai.player_lv_V3 import PlayerLV3
 from os import path
 
 COLOR_BOARD = (255, 180, 0)

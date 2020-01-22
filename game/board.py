@@ -1,5 +1,5 @@
 import numpy as np
-from lv_helpers import MoveTree, update_in_four_dirs
+from ai.lv_helpers import MoveTree, update_in_four_dirs
 
 
 class Board:
