@@ -1,6 +1,6 @@
 import copy
 from game.board import Board
-from lv_helpers import *
+from ai.lv_helpers import *
 import random
 # from score_counter import eval_board
 import math
