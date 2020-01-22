@@ -1,4 +1,5 @@
 import pygame
+import pygame.gfxdraw
 from game.board import Board
 from player_lv_V3 import PlayerLV3
 from os import path
@@ -6,9 +7,26 @@ from os import path
 COLOR_BOARD = (255, 180, 0)
 COLOR_BLACK = (0, 0, 0)
 COLOR_WHITE = (255, 255, 255)
+COLOR_RED = (204, 0, 0)
 
 GRID_WIDTH = 45
+STONE_WIDTH = GRID_WIDTH // 3 * 2
 
+
+class Highlight(pygame.sprite.Sprite):
+    def __init__(self, x, y):
+        pygame.sprite.Sprite.__init__(self)
+
+        self.highlight = pygame.Surface(((GRID_WIDTH // 3 + 4) * 2, (GRID_WIDTH // 3 + 4) * 2), pygame.SRCALPHA, 32)
+        # self.highlight = highlight.convert_alpha(highlight)
+        # pygame.gfxdraw.aacircle(self.highlight, (GRID_WIDTH // 3 + 4), (GRID_WIDTH // 3 + 4), GRID_WIDTH // 3 + 3, COLOR_RED)
+        circle = pygame.gfxdraw.filled_circle(self.highlight, x, y, GRID_WIDTH // 3 + 3, COLOR_RED)
+        # pygame.draw.circle(self.screen, COLOR_RED, (x, y), GRID_WIDTH // 3 + 4)
+        self.rect = self.highlight.get_rect(center=(x, y))
+
+    def update(self, *args, x, y):
+        self.rect.x = x
+        self.rect.y = y
 
 class GUI:
     def __init__(self):
@@ -30,7 +48,16 @@ class GUI:
 
         self.board = Board(15, 15)
 
+        self.highlight = None
+
     def draw_board(self):
+        # for i in range(1, 16):
+        #     pygame.font.init()
+        #     my_font = pygame.font.SysFont("Arial", 12)
+        #     text_surface = my_font.render(f"{i}", True, COLOR_BLACK)
+        #     text_rect = text_surface.get_rect(center=(self.width / 2, self.height))
+        #     self.screen.blit(text_surface, text_rect)
+
         for i in range(1, 16):
             pygame.draw.line(self.screen, COLOR_BLACK,
                              [GRID_WIDTH * i, GRID_WIDTH], [GRID_WIDTH * i, self.width], 2)
@@ -57,11 +84,9 @@ class GUI:
             return
 
         if self.turn == "white":
-            color = COLOR_WHITE
             img_path = path.abspath("imgs/white.png")
             img = pygame.image.load(img_path)
         else:
-            color = COLOR_BLACK
             img_path = path.abspath("imgs/black.png")
             img = pygame.image.load(img_path)
 
@@ -85,6 +110,29 @@ class GUI:
             self.cur_player = 2
         elif self.cur_player == 2:
             self.cur_player = 1
+
+    def highlight_stone(self, x, y):
+        # delete the previous highlight
+        # if self.highlight:
+        #     self.highlight.move(x, y)
+        # if self.highlight:
+        #     self.highlight.fill((0, 0, 0))
+        #     self.highlight.set_alpha(255)
+        #     self.screen.blit(self.highlight, (0, 0), special_flags=(pygame.BLEND_RGBA_ADD))
+        # self.highlight = pygame.Surface(((GRID_WIDTH // 3 + 4) * 2, (GRID_WIDTH // 3 + 4) * 2), pygame.SRCALPHA, 32)
+        # self.highlight = highlight.convert_alpha(highlight)
+        # pygame.gfxdraw.aacircle(self.highlight, (GRID_WIDTH // 3 + 4), (GRID_WIDTH // 3 + 4), GRID_WIDTH // 3 + 3, COLOR_RED)
+        # circle = pygame.gfxdraw.filled_circle(self.screen, x, y, GRID_WIDTH // 3 + 3, COLOR_RED)
+        pass
+        if self.highlight:
+            self.highlight.move_ip(10, 10)
+            # self.highlight.center = (x, y)
+            pygame.display.update(self.highlight)
+        else:
+            self.highlight = pygame.draw.circle(self.screen, COLOR_RED, (x, y), GRID_WIDTH // 3 + 4)
+
+        # highlight_rect = self.highlight.get_rect(center=(x, y))
+        # self.screen.blit(self.highlight, highlight_rect)
 
     def ai_move(self):
         # Assume ai is 1 by default
