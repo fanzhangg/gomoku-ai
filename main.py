@@ -1,21 +1,19 @@
 import pygame
 from game.pygame_gui import GUI
-from game.win_message import WinBox
 from sys import exit
 
 if __name__ == "__main__":
     pygame.init()
     pygame.font.init()
 
-
-
     game = GUI()
-
     game.draw_board()
 
     while True:
+
         event = pygame.event.poll()
 
+        # Put black key
         if event.type == pygame.MOUSEBUTTONDOWN:
             i, j = pygame.mouse.get_pos()
             if game.turn == "black":
@@ -26,8 +24,8 @@ if __name__ == "__main__":
                 if game.is_win(2, (i, j)):  # Black wins
                     game.show_win_msg("Black")
 
+        # Put white key
         if event.type == pygame.MOUSEBUTTONUP:
-
             if game.turn == "white":
                 i, j = game.ai_move()
                 print(i, j)
